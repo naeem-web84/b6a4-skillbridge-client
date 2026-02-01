@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
+import { userService } from "@/services/user.service";
 
 
-export default function Home() {
+export default async function Home() {
+
+  const {data, error} = await userService.getSession();
+
+  
+
   return (
      <div>
       <Button className="text-red-400">Click Here</Button>
