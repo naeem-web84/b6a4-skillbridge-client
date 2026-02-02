@@ -12,6 +12,10 @@ export const studentRoutes : Route[] =[
           title: "Student",
           url: "/dashboard",
         },
+        {
+          title: "Be a Tutor",
+          url: "/be-tutor"
+        },
       ],
     } 
   ]

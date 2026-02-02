@@ -144,9 +144,5 @@ export const config = {
         "/settings/:path*",
         "/messages/:path*",
         "/notifications/:path*",
-        
-        // Root and home
-        "/",
-        "/home",
     ]
 };

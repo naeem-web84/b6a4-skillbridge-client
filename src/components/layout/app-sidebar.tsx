@@ -16,16 +16,17 @@ import {
 } from "@/components/ui/sidebar"
 import { adminRoutes } from "@/routes/adminRoutes"
 import { studentRoutes } from "@/routes/studentRoutes"
-import { Route } from "@/types"
+import { Route } from "@/types" 
+import { tutorRoutes } from "@/routes/tutorRoutes"
+import Link from "next/link"
 
 
 
 export function AppSidebar({ user,...props }: {user: {role: string}} & React.ComponentProps<typeof Sidebar>) {
-
- // Debugging জন্য
+    
   console.log("AppSidebar - User role received:", user?.role);
   
-  // Role-কে lowercase করো stable comparison-এর জন্য
+  
   const userRole = user?.role?.toLowerCase();
   
   let routes: Route[] = [];
@@ -34,14 +35,13 @@ export function AppSidebar({ user,...props }: {user: {role: string}} & React.Com
     routes = adminRoutes;
   } else if (userRole === "student") {
     routes = studentRoutes;
-  } else if (userRole === "tutor") {
-    // যদি তোমার tutorRoutes থাকে
-    routes = tutorRoutes || [];
+  } else if (userRole === "tutor") { 
+    routes= tutorRoutes || [];
   } else {
     routes = [];
   }
   
-  console.log("AppSidebar - Routes loaded:", routes.length);
+ 
 
   return (
     <Sidebar {...props}>
@@ -54,8 +54,8 @@ export function AppSidebar({ user,...props }: {user: {role: string}} & React.Com
               <SidebarMenu>
                 {item.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
-                      <a href={item.url}>{item.title}</a>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url}>{item.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
