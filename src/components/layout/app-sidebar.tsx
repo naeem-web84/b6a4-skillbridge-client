@@ -22,19 +22,26 @@ import { Route } from "@/types"
 
 export function AppSidebar({ user,...props }: {user: {role: string}} & React.ComponentProps<typeof Sidebar>) {
 
-  let routes : Route[] = [];
-  switch (user.role) {
-    case "admin":
-      routes = adminRoutes;
-      break;
-    case "student":
-      routes = studentRoutes;
-      break;
+ // Debugging জন্য
+  console.log("AppSidebar - User role received:", user?.role);
   
-    default:
-      routes = [];
-      break;
+  // Role-কে lowercase করো stable comparison-এর জন্য
+  const userRole = user?.role?.toLowerCase();
+  
+  let routes: Route[] = [];
+  
+  if (userRole === "admin") {
+    routes = adminRoutes;
+  } else if (userRole === "student") {
+    routes = studentRoutes;
+  } else if (userRole === "tutor") {
+    // যদি তোমার tutorRoutes থাকে
+    routes = tutorRoutes || [];
+  } else {
+    routes = [];
   }
+  
+  console.log("AppSidebar - Routes loaded:", routes.length);
 
   return (
     <Sidebar {...props}>

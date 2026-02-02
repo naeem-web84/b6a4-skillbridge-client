@@ -1,5 +1,5 @@
 export const Roles = {
     admin: "ADMIN",
-    user: 'STUDENT',
+    student: 'STUDENT',
     tutor: 'TUTOR'
 }
