@@ -1,4 +1,4 @@
-// app/dashboard/layout.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -21,11 +21,29 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 
+ 
 interface UserInfo {
   id: string;
   email: string;
   name: string;
-  role?: string;
+  role: string;  
+  emailVerified: boolean;
+  image?: string | null;
+  status?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+ 
+interface ExtendedUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  emailVerified: boolean;
+  image?: string | null;
+  status?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export default function DashboardLayout({ 
@@ -46,30 +64,36 @@ export default function DashboardLayout({
       try {
         setIsLoading(true);
         
-        // Session থেকে user data নাও
+      
         const { data: session, error } = await authClient.getSession();
+ 
         
         if (error || !session?.user) {
-          // যদি user না থাকে, login page-এ redirect করো
-          console.log("No session found, redirecting to login");
-          router.push("/login");
+           
+           router.push("/login");
           return;
         }
         
-        // User data set করো
+        
+        const sessionUser = session.user as ExtendedUser;
+        
+        
         const userData: UserInfo = {
-          id: session.user.id,
-          email: session.user.email || "",
-          name: session.user.name || "",
-          role: session.user.role || "student", 
+          id: sessionUser.id,
+          email: sessionUser.email || "",
+          name: sessionUser.name || "",
+          role: sessionUser.role || "student",  
+          emailVerified: sessionUser.emailVerified || false,
+          image: sessionUser.image || null,
+          status: sessionUser.status || "Active",
+          createdAt: sessionUser.createdAt,
+          updatedAt: sessionUser.updatedAt,
         };
         
-        console.log("DashboardLayout - User loaded:", userData);
-        setUserInfo(userData);
+         setUserInfo(userData);
         
       } catch (error) {
-        console.error("Error loading user:", error);
-        router.push("/login");
+         router.push("/login");
       } finally {
         setIsLoading(false);
       }
@@ -78,7 +102,7 @@ export default function DashboardLayout({
     loadUser();
   }, [router]);
 
-  // যদি data লোড হচ্ছে
+   
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -90,12 +114,12 @@ export default function DashboardLayout({
     );
   }
 
-  // যদি user না থাকে
+  
   if (!userInfo) {
-    return null; // বা loading screen
+    return null; 
   }
 
-  // Role-based content render করো
+   
   const renderContent = () => {
     const role = userInfo.role.toLowerCase();
     
@@ -110,7 +134,7 @@ export default function DashboardLayout({
     }
   };
 
-  // Role-based sidebar title
+ 
   const getBreadcrumbTitle = () => {
     const role = userInfo.role.toLowerCase();
     

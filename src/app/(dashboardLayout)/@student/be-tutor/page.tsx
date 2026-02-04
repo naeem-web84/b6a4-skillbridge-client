@@ -1,6 +1,11 @@
+import BeTutorForm from '@/components/tutor/BeTutorForm';
 
-export default function BeATutorPage() {
+export default function BeTutorPage() {
   return (
-    <div>BeATutorPage</div>
-  )
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8">
+        <BeTutorForm />
+      </div>
+    </div>
+  );
 }

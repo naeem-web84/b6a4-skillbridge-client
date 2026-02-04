@@ -1,0 +1,64 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+
+// If you want to use Server Actions instead of API calls
+export async function createTutorProfile(formData: FormData) {
+  // You can either:
+  // 1. Call your API endpoint directly
+  // 2. Or implement server-side logic here
+  
+  // Example using fetch to your API
+  try {
+    const data = {
+      headline: formData.get('headline') as string,
+      bio: formData.get('bio') as string,
+      hourlyRate: parseFloat(formData.get('hourlyRate') as string),
+      experienceYears: parseInt(formData.get('experienceYears') as string),
+      education: formData.get('education') as string,
+      certifications: formData.get('certifications') as string,
+      categories: JSON.parse(formData.get('categories') as string || '[]'),
+    };
+
+    const response = await fetch(`${process.env.API_URL}/tutor/create-profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // You might need to pass cookies for authentication
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create tutor profile');
+    }
+
+    revalidatePath('/dashboard');
+    redirect('/dashboard');
+    
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
+export async function checkEligibility() {
+  try {
+    const response = await fetch(`${process.env.API_URL}/tutor/check-eligibility`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to check eligibility');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+    return { canBecome: false, message: 'Failed to check eligibility' };
+  }
+}

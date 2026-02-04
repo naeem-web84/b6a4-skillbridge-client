@@ -116,7 +116,7 @@ const Navbar = ({
             </div>
           </div>
 
-          {/* Right Side Actions */}
+           
           <div className="flex flex-1 items-center justify-end gap-3">
             <div className="flex items-center gap-3">
               <ModeToggle />
@@ -136,7 +136,7 @@ const Navbar = ({
                 <Link href={auth.signup.url}>{auth.signup.title}</Link>
               </Button>
               
-              {/* Mobile menu button for lg:hidden */}
+               
               <Sheet>
                 <SheetTrigger asChild className="lg:hidden">
                   <Button variant="outline" size="icon">

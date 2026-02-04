@@ -1,7 +1,11 @@
-import React from 'react'
+import TutorStats from "@/components/tutor/TutorStats";
 
-export default function TutorPage() {
+ 
+
+export default function TutorDashboardPage() {
   return (
-    <div>TutorPage</div>
-  )
+    <div className="p-6">
+        <TutorStats></TutorStats>
+    </div>
+  );
 }
