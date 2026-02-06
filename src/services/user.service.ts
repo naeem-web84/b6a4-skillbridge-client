@@ -21,8 +21,6 @@ export const userService = {
             if(session === null){
                 return {data: null, error: {message: "Session is missing", status: 401} };
             }
-
-
             return {data: session, error: null};
         }
         catch (error) { 

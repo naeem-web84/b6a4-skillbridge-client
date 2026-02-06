@@ -13,6 +13,18 @@ export const tutorRoutes : Route[] = [
           url: "/tutor-dashboard/update-profile",
         },
         {
+          title: "Manage Availability",
+          url: "/tutor-dashboard/availability-management"
+        },
+         {
+          title: "Add Category",
+          url: "/tutor-dashboard/add-category"
+        },
+         {
+          title: "Bookings",
+          url: "/tutor-dashboard/bookings"
+        },
+        {
           title: "Home",
           url: "/"
         } 

@@ -6,7 +6,7 @@ import { CreateTutorProfileInput, Category } from '@/types';
 import { updateTutorService } from '@/services/updateTutor.service';
 import { tutorService } from '@/services/tutor.service';
 
-// Simple toast component
+ 
 const Toast = ({ message, type = 'success', onClose }: { 
   message: string; 
   type?: 'success' | 'error'; 
@@ -57,27 +57,22 @@ export default function UpdateTutorForm() {
         education: '',
         certifications: '',
     });
-
-    // Load existing tutor data and categories
+ 
     useEffect(() => {
         const loadData = async () => {
             try {
                 setFetching(true);
-
-                // Load categories
+ 
                 const categoriesResult = await tutorService.getCategories();
                 if (categoriesResult.success) {
                     setCategories(categoriesResult.categories || []);
                 }
-
-                // Load existing tutor profile
+ 
                 const profileResult = await tutorService.getTutorProfile();
 
                 if (profileResult.success) {
-                    // Access the data property with type assertion
-                    const profileData = (profileResult as any).data || profileResult;
-
-                    // Fill form with existing data
+                     const profileData = (profileResult as any).data || profileResult;
+ 
                     setFormData({
                         headline: profileData.headline || '',
                         bio: profileData.bio || '',
@@ -86,8 +81,7 @@ export default function UpdateTutorForm() {
                         education: profileData.education || '',
                         certifications: profileData.certifications || '',
                     });
-
-                    // Set selected categories
+ 
                     if (profileData.categories && Array.isArray(profileData.categories)) {
                         const categoryIds = profileData.categories.map((cat: any) => cat.categoryId || cat.id);
                         setSelectedCategories(categoryIds);
@@ -136,8 +130,7 @@ export default function UpdateTutorForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validate at least one field is being updated
-        const isFormEmpty = !formData.headline &&
+         const isFormEmpty = !formData.headline &&
             !formData.bio &&
             !formData.hourlyRate &&
             !formData.experienceYears &&

@@ -38,8 +38,7 @@ export const tutorStatsService = {
         success: true,
         data: data.data,
       };
-    } catch (error: any) {
-      console.error('Error fetching dashboard stats:', error);
+    } catch (error: any) { 
       return {
         success: false,
         message: error.message || 'Network error',
