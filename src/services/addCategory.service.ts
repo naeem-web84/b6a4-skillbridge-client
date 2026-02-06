@@ -305,16 +305,13 @@ export const categoryService = {
         const result = await res.json();
         return result;
       }
-
-      // If no PATCH endpoint, simulate success
-      console.warn("⚠️ PATCH endpoint not implemented");
+ 
       return {
         success: true,
         message: "Proficiency level updated (simulated)"
       };
       
-    } catch (error: any) {
-      console.error("Update proficiency level error:", error);
+    } catch (error: any) { 
       return {
         success: false,
         message: error.message || "Failed to update proficiency level"
