@@ -1,6 +1,10 @@
+import { StudentProfile } from "@/components/student/profile/StudentProfile";
 
-export default function StudentDashboard() {
-  return (
-    <div>StudentDashboard</div>
-  )
-}
+  
+ 
+ export default function DashboardPage() {
+   return (
+     <div><StudentProfile></StudentProfile></div>
+   )
+ }
+ 
