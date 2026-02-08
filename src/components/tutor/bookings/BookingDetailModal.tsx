@@ -1,213 +1,439 @@
-// components/tutor/bookings/BookingDetailModal.tsx
-import { BookingStatus, BookingWithUser } from '@/services/tutorBooking.service';
+// components/tutor/bookings/BookingDetailModal.tsx - COMPACT DESIGN
+import { useState } from 'react';
+import { BookingWithUser, BookingStatus } from '@/services/tutorBooking.service';
+import { Calendar, Clock, DollarSign, User, Mail, GraduationCap, BookOpen, CreditCard, Link, FileText, Copy, Check, Edit, X } from 'lucide-react';
 
 interface BookingDetailModalProps {
-  booking: BookingWithUser;
+  booking: BookingWithUser | null;
   isOpen: boolean;
   onClose: () => void;
   onStatusUpdate: (bookingId: string, status: BookingStatus) => void;
+  onMeetingLinkUpdate: (bookingId: string, meetingLink: string) => void;
+  onRefresh: () => void;
 }
 
 export default function BookingDetailModal({
   booking,
   isOpen,
   onClose,
-  onStatusUpdate
+  onStatusUpdate,
+  onMeetingLinkUpdate,
+  onRefresh
 }: BookingDetailModalProps) {
-  if (!isOpen) return null;
+  // Early return if modal is not open OR booking is null/undefined
+  if (!isOpen || !booking) {
+    return null;
+  }
 
-  const getStatusActions = (currentStatus: BookingStatus) => {
-    const actions: Record<BookingStatus, BookingStatus[]> = {
-      [BookingStatus.PENDING]: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED],
-      [BookingStatus.CONFIRMED]: [BookingStatus.COMPLETED, BookingStatus.CANCELLED, BookingStatus.RESCHEDULED],
-      [BookingStatus.COMPLETED]: [],
-      [BookingStatus.CANCELLED]: [],
-      [BookingStatus.RESCHEDULED]: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED],
-    };
-    return actions[currentStatus];
-  };
+  // Now we can safely use booking
+  const [meetingLink, setMeetingLink] = useState(booking.meetingLink || '');
+  const [isEditingMeetingLink, setIsEditingMeetingLink] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
     });
   };
 
   const formatTime = (timeString: string) => {
     return new Date(timeString).toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit',
-      hour12: true
+      minute: '2-digit'
     });
   };
 
-  const availableActions = getStatusActions(booking.status);
+  const getStatusColor = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.PENDING:
+        return 'bg-amber-50 text-amber-700 border border-amber-200';
+      case BookingStatus.CONFIRMED:
+        return 'bg-blue-50 text-blue-700 border border-blue-200';
+      case BookingStatus.COMPLETED:
+        return 'bg-green-50 text-green-700 border border-green-200';
+      case BookingStatus.CANCELLED:
+        return 'bg-red-50 text-red-700 border border-red-200';
+      case BookingStatus.RESCHEDULED:
+        return 'bg-purple-50 text-purple-700 border border-purple-200';
+      default:
+        return 'bg-muted text-muted-foreground border border-border';
+    }
+  };
+
+  const getStatusIcon = (status: BookingStatus) => {
+    switch (status) {
+      case BookingStatus.PENDING: return '⏳';
+      case BookingStatus.CONFIRMED: return '✅';
+      case BookingStatus.COMPLETED: return '🎓';
+      case BookingStatus.CANCELLED: return '❌';
+      case BookingStatus.RESCHEDULED: return '🔄';
+      default: return '📝';
+    }
+  };
+
+  const handleUpdateMeetingLink = async () => {
+    if (!meetingLink.trim()) return;
+    
+    setIsUpdating(true);
+    try {
+      await onMeetingLinkUpdate(booking.id, meetingLink);
+      setIsEditingMeetingLink(false);
+    } catch (error) {
+      console.error('Failed to update meeting link:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleStatusUpdate = (status: BookingStatus) => {
+    onStatusUpdate(booking.id, status);
+    onClose();
+  };
+
+  const getAvailableStatusActions = (currentStatus: BookingStatus): BookingStatus[] => {
+    switch (currentStatus) {
+      case BookingStatus.PENDING:
+        return [BookingStatus.CONFIRMED, BookingStatus.CANCELLED];
+      case BookingStatus.CONFIRMED:
+        return [BookingStatus.COMPLETED, BookingStatus.CANCELLED];
+      case BookingStatus.RESCHEDULED:
+        return [BookingStatus.CONFIRMED, BookingStatus.CANCELLED];
+      case BookingStatus.COMPLETED:
+      case BookingStatus.CANCELLED:
+      default:
+        return [];
+    }
+  };
+
+  const handleCopyBookingId = () => {
+    navigator.clipboard.writeText(booking.id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const availableActions = getAvailableStatusActions(booking.status);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
-        <div
-          className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75"
-          onClick={onClose}
-        />
-
-        {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            {/* Header */}
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  Booking Details
-                </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  ID: {booking.id}
-                </p>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-background/80 backdrop-blur-sm">
+      <div className="flex min-h-screen items-center justify-center p-4">
+        {/* Modal Container - Smaller */}
+        <div className="relative w-full max-w-3xl bg-card rounded-lg shadow-lg border border-border">
+          
+          {/* Header - Compact */}
+          <div className="border-b border-border px-5 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary/10 p-1.5 rounded-md">
+                  <Calendar className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-card-foreground">Booking Details</h2>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                      {getStatusIcon(booking.status)} {booking.status}
+                    </span>
+                  </div>
+                </div>
               </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-muted-foreground hover:text-foreground hover:bg-accent p-1 rounded-md transition-colors"
               >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-4 w-4" />
               </button>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-6">
-              {/* Student Info */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-semibold text-gray-700 mb-3">👨‍🎓 Student Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Name</p>
-                    <p className="font-medium">{booking.studentUser?.name || 'Unknown'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">{booking.studentUser?.email || 'No email'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Grade</p>
-                    <p className="font-medium">{booking.studentProfile.grade || 'Not specified'}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Subjects</p>
-                    <p className="font-medium">
-                      {booking.studentProfile.subjects.join(', ') || 'Not specified'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Booking Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-3">📅 Session Details</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-gray-500">Date</p>
-                      <p className="font-medium">{formatDate(booking.bookingDate)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Time</p>
-                      <p className="font-medium">
-                        {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Duration</p>
-                      <p className="font-medium">{booking.duration} minutes</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-3">💰 Payment Details</h4>
-                  <div className="space-y-3">
-                    <div>
-                      <p className="text-sm text-gray-500">Amount</p>
-                      <p className="font-medium text-lg">${booking.amount.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Payment Status</p>
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        booking.isPaid
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {booking.isPaid ? 'Paid' : 'Pending'}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Category</p>
-                      <p className="font-medium">{booking.category.name}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Meeting Link & Notes */}
-              {(booking.meetingLink || booking.notes) && (
-                <div className="space-y-4">
-                  {booking.meetingLink && (
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">🔗 Meeting Link</h4>
-                      <a
-                        href={booking.meetingLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline break-all"
-                      >
-                        {booking.meetingLink}
-                      </a>
-                    </div>
-                  )}
-                  {booking.notes && (
-                    <div>
-                      <h4 className="font-semibold text-gray-700 mb-2">📝 Notes</h4>
-                      <p className="text-gray-700 bg-gray-50 p-3 rounded-lg">
-                        {booking.notes}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Status Actions */}
-              {availableActions.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-3">🔄 Update Status</h4>
-                  <div className="flex gap-2 flex-wrap">
-                    {availableActions.map((action) => (
-                      <button
-                        key={action}
-                        onClick={() => onStatusUpdate(booking.id, action)}
-                        className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
-                      >
-                        Mark as {action}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              onClick={onClose}
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Close
-            </button>
+          {/* Main Content - Compact */}
+          <div className="p-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Left Column */}
+              <div className="space-y-4">
+                {/* Student Information - Compact */}
+                <div className="bg-card border border-border rounded-md p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="bg-primary/10 p-1.5 rounded-md">
+                      <User className="h-4 w-4 text-primary" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-card-foreground">Student Information</h3>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <span className="text-primary font-medium text-sm">
+                          {booking.studentUser?.name?.charAt(0) || 'S'}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-card-foreground">{booking.studentUser?.name || 'Unknown'}</p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Mail className="h-3 w-3" />
+                          {booking.studentUser?.email || 'No email'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Grade</p>
+                        <div className="flex items-center gap-1.5">
+                          <GraduationCap className="h-3.5 w-3.5 text-muted-foreground" />
+                          <p className="text-sm font-medium text-card-foreground">{booking.studentProfile?.grade || '-'}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Subjects</p>
+                        <div className="flex items-center gap-1.5">
+                          <BookOpen className="h-3.5 w-3.5 text-muted-foreground" />
+                          <p className="text-sm font-medium text-card-foreground truncate">
+                            {booking.studentProfile?.subjects?.slice(0, 2).join(', ') || '-'}
+                            {booking.studentProfile?.subjects?.length > 2 && '...'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Session Details - Compact */}
+                <div className="bg-card border border-border rounded-md p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="bg-primary/10 p-1.5 rounded-md">
+                      <Calendar className="h-4 w-4 text-primary" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-card-foreground">Session Details</h3>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Date</p>
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                        <p className="text-sm font-medium text-card-foreground">{formatDate(booking.bookingDate)}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Time</p>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        <p className="text-sm font-medium text-card-foreground">
+                          {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Duration</p>
+                      <p className="text-sm font-medium text-card-foreground">{booking.duration} min</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Category</p>
+                      <p className="text-sm font-medium text-card-foreground truncate">{booking.category?.name || '-'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Amount</p>
+                      <div className="flex items-center gap-1.5">
+                        <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                        <p className="text-sm font-medium text-card-foreground">${booking.amount?.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Payment</p>
+                      <div className="flex items-center gap-1.5">
+                        <CreditCard className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
+                          booking.isPaid 
+                            ? 'bg-green-50 text-green-700 border border-green-200' 
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}>
+                          {booking.isPaid ? 'Paid' : 'Unpaid'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column */}
+              <div className="space-y-4">
+                {/* Meeting Link - Compact */}
+                <div className="bg-card border border-border rounded-md p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="bg-primary/10 p-1.5 rounded-md">
+                        <Link className="h-4 w-4 text-primary" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-card-foreground">Meeting Link</h3>
+                    </div>
+                    {!isEditingMeetingLink && (
+                      <button
+                        onClick={() => setIsEditingMeetingLink(true)}
+                        className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+                      >
+                        <Edit className="h-3 w-3" />
+                        Edit
+                      </button>
+                    )}
+                  </div>
+                  
+                  {isEditingMeetingLink ? (
+                    <div className="space-y-3">
+                      <input
+                        type="text"
+                        value={meetingLink}
+                        onChange={(e) => setMeetingLink(e.target.value)}
+                        placeholder="Enter meeting link..."
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-1 focus:ring-ring focus:border-primary text-card-foreground bg-background"
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleUpdateMeetingLink}
+                          disabled={isUpdating || !meetingLink.trim()}
+                          className="px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 font-medium transition-colors flex-1"
+                        >
+                          {isUpdating ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsEditingMeetingLink(false);
+                            setMeetingLink(booking.meetingLink || '');
+                          }}
+                          className="px-3 py-1.5 text-xs bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 font-medium transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      {booking.meetingLink ? (
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Current link:</p>
+                          <a
+                            href={booking.meetingLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-primary hover:text-primary/80 break-all font-medium block truncate"
+                            title={booking.meetingLink}
+                          >
+                            {booking.meetingLink}
+                          </a>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Click to join meeting
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="text-center py-4">
+                          <Link className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                          <p className="text-xs text-muted-foreground">No meeting link</p>
+                          <button
+                            onClick={() => setIsEditingMeetingLink(true)}
+                            className="mt-1 text-xs text-primary hover:text-primary/80 font-medium"
+                          >
+                            Add link
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Quick Actions - Compact */}
+                <div className="bg-card border border-border rounded-md p-4">
+                  <h3 className="text-sm font-semibold text-card-foreground mb-3">Quick Actions</h3>
+                  <div className="space-y-2">
+                    {availableActions.map((action) => (
+                      <button
+                        key={action}
+                        onClick={() => handleStatusUpdate(action)}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-md border text-sm transition-all ${
+                          action === BookingStatus.CONFIRMED
+                            ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                            : action === BookingStatus.COMPLETED
+                            ? 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
+                            : action === BookingStatus.CANCELLED
+                            ? 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
+                            : 'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{getStatusIcon(action)}</span>
+                          <span className="font-medium">Mark as {action}</span>
+                        </div>
+                        <span className="text-muted-foreground text-xs">→</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <button
+                      onClick={handleCopyBookingId}
+                      className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs bg-accent text-accent-foreground rounded-md hover:bg-accent/80 font-medium transition-colors"
+                    >
+                      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      {copied ? 'Copied!' : 'Copy ID'}
+                    </button>
+                    <button
+                      onClick={onRefresh}
+                      className="px-3 py-1.5 text-xs bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium transition-colors"
+                    >
+                      Refresh
+                    </button>
+                  </div>
+                </div>
+
+                {/* Notes - Compact (if exists) */}
+                {booking.notes && (
+                  <div className="bg-card border border-border rounded-md p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="bg-primary/10 p-1.5 rounded-md">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-card-foreground">Notes</h3>
+                    </div>
+                    <p className="text-sm text-card-foreground line-clamp-3">{booking.notes}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Metadata - Compact */}
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <div>
+                  <p><span className="font-medium">Created:</span> {new Date(booking.createdAt).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p><span className="font-medium">Updated:</span> {new Date(booking.updatedAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer - Compact */}
+          <div className="border-t border-border px-5 py-3">
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={onClose}
+                className="px-4 py-1.5 text-sm bg-card border border-input text-card-foreground rounded-md hover:bg-accent font-medium transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  onRefresh();
+                  onClose();
+                }}
+                className="px-4 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 font-medium transition-colors"
+              >
+                Save & Close
+              </button>
+            </div>
           </div>
         </div>
       </div>

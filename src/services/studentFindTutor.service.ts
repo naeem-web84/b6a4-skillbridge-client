@@ -75,7 +75,8 @@ interface TutorAvailabilityResponse {
   slotsByDate: Record<string, AvailabilitySlot[]>;
 }
 
-interface Booking {
+// ✅ ADDED: StudentBooking interface
+export interface StudentBooking {
   id: string;
   bookingDate: string;
   startTime: string;
@@ -92,6 +93,10 @@ interface Booking {
     headline: string;
     hourlyRate: number;
     rating: number;
+    user?: {
+      name: string;
+      image?: string;
+    };
   };
   category: {
     id: string;
@@ -108,6 +113,8 @@ interface Booking {
     rating: number;
     comment: string;
   };
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface CreateBookingInput {
@@ -382,7 +389,7 @@ export const bookingService = {
   /**
    * Create a new booking with a tutor
    */
-  createBooking: async (data: CreateBookingInput): Promise<BaseResponse & { data?: Booking }> => {
+  createBooking: async (data: CreateBookingInput): Promise<BaseResponse & { data?: StudentBooking }> => {
     try {
       const headers = await getHeaders();
       
@@ -426,7 +433,7 @@ export const bookingService = {
   /**
    * Get bookings with optional filters and pagination
    */
-  getBookings: async (filters?: BookingFilters): Promise<PaginatedResponse<Booking>> => {
+  getBookings: async (filters?: BookingFilters): Promise<PaginatedResponse<StudentBooking>> => {
     try {
       const headers = await getHeaders();
       
@@ -475,9 +482,9 @@ export const bookingService = {
   },
 
   /**
-   * Get specific booking by ID
+   * ✅ NEW: Get specific booking by ID (Student এর জন্য)
    */
-  getBookingById: async (bookingId: string): Promise<BaseResponse & { data?: Booking }> => {
+  getStudentBookingById: async (bookingId: string): Promise<BaseResponse & { data?: StudentBooking }> => {
     try {
       const headers = await getHeaders();
       
@@ -488,7 +495,8 @@ export const bookingService = {
         };
       }
       
-      const url = `${API_BASE_URL}/students/bookings/${bookingId}`;
+      // ✅ UPDATED: Student এর জন্য আলাদা endpoint
+      const url = `${API_BASE_URL}/student/bookings/${bookingId}`;
       console.log("🌐 GET", url);
       
       const res = await fetch(url, {
@@ -499,7 +507,7 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get booking by ID response:", result);
+      console.log("🌐 Get student booking by ID response:", result);
 
       if (!res.ok) {
         return {
@@ -519,9 +527,110 @@ export const bookingService = {
   },
 
   /**
+   * ✅ NEW: Get upcoming bookings for student
+   */
+  getUpcomingBookings: async (): Promise<BaseResponse & { data?: StudentBooking[] }> => {
+    try {
+      const headers = await getHeaders();
+      
+      const url = `${API_BASE_URL}/students/bookings/upcoming`;
+      console.log("🌐 GET", url);
+      
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+        credentials: "include",
+        cache: "no-cache",
+      });
+
+      const result = await res.json();
+      console.log("🌐 Get upcoming bookings response:", result);
+
+      if (!res.ok) {
+        return {
+          success: false,
+          message: result.message || "Failed to fetch upcoming bookings",
+          data: []
+        };
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error("Get upcoming bookings error:", error);
+      return {
+        success: false,
+        message: error.message || "Failed to fetch upcoming bookings",
+        data: []
+      };
+    }
+  },
+
+  /**
+   * ✅ NEW: Get booking statistics for student
+   */
+  getBookingStatistics: async (): Promise<BaseResponse & { 
+    data?: {
+      totalBookings: number;
+      pendingBookings: number;
+      confirmedBookings: number;
+      completedBookings: number;
+      cancelledBookings: number;
+      totalSpent: number;
+    } 
+  }> => {
+    try {
+      const headers = await getHeaders();
+      
+      const url = `${API_BASE_URL}/students/bookings/statistics`;
+      console.log("🌐 GET", url);
+      
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+        credentials: "include",
+        cache: "no-cache",
+      });
+
+      const result = await res.json();
+      console.log("🌐 Get booking statistics response:", result);
+
+      if (!res.ok) {
+        return {
+          success: false,
+          message: result.message || "Failed to fetch booking statistics",
+          data: {
+            totalBookings: 0,
+            pendingBookings: 0,
+            confirmedBookings: 0,
+            completedBookings: 0,
+            cancelledBookings: 0,
+            totalSpent: 0
+          }
+        };
+      }
+
+      return result;
+    } catch (error: any) {
+      console.error("Get booking statistics error:", error);
+      return {
+        success: false,
+        message: error.message || "Failed to fetch booking statistics",
+        data: {
+          totalBookings: 0,
+          pendingBookings: 0,
+          confirmedBookings: 0,
+          completedBookings: 0,
+          cancelledBookings: 0,
+          totalSpent: 0
+        }
+      };
+    }
+  },
+
+  /**
    * Cancel a booking
    */
-  cancelBooking: async (bookingId: string): Promise<BaseResponse & { data?: Booking }> => {
+  cancelBooking: async (bookingId: string): Promise<BaseResponse & { data?: StudentBooking }> => {
     try {
       const headers = await getHeaders();
       

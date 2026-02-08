@@ -1,7 +1,7 @@
-// services/tutorBooking.service.ts
+// services/tutorBooking.service.ts - CLEAN VERSION
 import { env } from "@/env";
 
-const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ==================== TYPES ====================
 
@@ -65,13 +65,11 @@ export interface Booking {
   categoryId: string;
   availabilitySlotId?: string;
   
-  // Relations
   studentProfile: StudentProfile;
   category: Category;
   availabilitySlot?: AvailabilitySlot;
   review?: Review;
   
-  // Booking details
   bookingDate: string;
   startTime: string;
   endTime: string;
@@ -86,7 +84,6 @@ export interface Booking {
   createdAt: string;
   updatedAt: string;
   
-  // Frontend only - populated from separate call
   studentUser?: StudentUser;
 }
 
@@ -106,12 +103,13 @@ export interface BookingStats {
 }
 
 export interface GetBookingsFilters {
-  status?: BookingStatus;
+  status?: BookingStatus | 'all';
   studentId?: string;
   startDate?: Date;
   endDate?: Date;
   page?: number;
   limit?: number;
+  search?: string;
 }
 
 export interface UpdateBookingStatusInput {
@@ -125,6 +123,8 @@ export interface PaginationInfo {
   page: number;
   limit: number;
   totalPages: number;
+  hasNext?: boolean;
+  hasPrev?: boolean;
 }
 
 export interface BaseResponse {
@@ -147,6 +147,24 @@ export interface UpdateBookingStatusResponse extends BaseResponse {
 
 export interface GetBookingStatsResponse extends BaseResponse {
   data: BookingStats;
+}
+
+export interface NotificationItem {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  bookingId?: string;
+}
+
+export interface PendingCountResponse extends BaseResponse {
+  data?: { count: number };
+}
+
+export interface NotificationsResponse extends BaseResponse {
+  data?: NotificationItem[];
 }
 
 // ==================== HELPER FUNCTIONS ====================
@@ -189,11 +207,17 @@ const getDefaultStats = (): BookingStats => ({
   completionRate: 0
 });
 
+const buildUrl = (path: string): string => {
+  const base = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  return `${base}/${cleanPath}`;
+};
+
 // ==================== MAIN SERVICE ====================
 
 export const tutorBookingService = {
   /**
-   * ১. টিউটরের সব বুকিং দেখবে (স্ট্যাটাস, ছাত্র, তারিখ দিয়ে ফিল্টার করা যায়)
+   * ১. টিউটরের সব বুকিং দেখবে
    */
   getTutorBookings: async function (
     filters?: GetBookingsFilters
@@ -203,60 +227,45 @@ export const tutorBookingService = {
       
       const queryParams = new URLSearchParams();
       
-      if (filters?.status) queryParams.append('status', filters.status);
-      if (filters?.studentId) queryParams.append('studentId', filters.studentId);
-      if (filters?.startDate) queryParams.append('startDate', filters.startDate.toISOString());
-      if (filters?.endDate) queryParams.append('endDate', filters.endDate.toISOString());
-      if (filters?.page) queryParams.append('page', filters.page.toString());
-      if (filters?.limit) queryParams.append('limit', filters.limit.toString());
+      if (filters?.status && filters.status !== 'all') {
+        queryParams.append('status', filters.status);
+      }
+      
+      if (filters?.startDate) {
+        queryParams.append('startDate', filters.startDate.toISOString());
+      }
+      
+      if (filters?.endDate) {
+        queryParams.append('endDate', filters.endDate.toISOString());
+      }
+      
+      if (filters?.page) {
+        queryParams.append('page', filters.page.toString());
+      }
+      
+      if (filters?.limit) {
+        queryParams.append('limit', filters.limit.toString());
+      }
+      
+      if (filters?.search) {
+        queryParams.append('search', filters.search);
+      }
       
       const queryString = queryParams.toString();
-      const endpoint = `/api/tutors/bookings${queryString ? `?${queryString}` : ''}`;
+      const endpoint = `tutors/bookings${queryString ? `?${queryString}` : ''}`;
+      const fullUrl = buildUrl(endpoint);
       
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const res = await fetch(fullUrl, {
         method: "GET",
         headers,
         credentials: "include",
-        cache: "no-cache",
+        cache: "no-store",
       });
-
-      const responseText = await res.text();
-      
-      if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-        return {
-          success: false,
-          message: "Server error",
-          data: [],
-          pagination: {
-            total: 0,
-            page: filters?.page || 1,
-            limit: filters?.limit || 10,
-            totalPages: 0
-          }
-        };
-      }
-      
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch {
-        return {
-          success: false,
-          message: "Invalid response",
-          data: [],
-          pagination: {
-            total: 0,
-            page: filters?.page || 1,
-            limit: filters?.limit || 10,
-            totalPages: 0
-          }
-        };
-      }
 
       if (!res.ok) {
         return {
           success: false,
-          message: result.message || "Failed to fetch bookings",
+          message: `API Error ${res.status}: ${res.statusText}`,
           data: [],
           pagination: {
             total: 0,
@@ -266,20 +275,22 @@ export const tutorBookingService = {
           }
         };
       }
-
+      
+      const result = await res.json();
+      
       return {
         success: true,
         message: result.message || "Bookings fetched successfully",
         data: result.data || [],
         pagination: result.pagination || {
-          total: 0,
+          total: result.data?.length || 0,
           page: filters?.page || 1,
           limit: filters?.limit || 10,
-          totalPages: 0
+          totalPages: Math.ceil((result.data?.length || 0) / (filters?.limit || 10))
         }
       };
       
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
         message: "Failed to fetch bookings",
@@ -295,47 +306,262 @@ export const tutorBookingService = {
   },
 
   /**
-   * ২. টিউটরের বুকিং স্ট্যাটিসটিক্স দেখবে
+   * ২. শুধু PENDING বুকিং গুলো দেখবে
    */
-  getBookingStats: async function (): Promise<GetBookingStatsResponse> {
+  getPendingBookings: async function (
+    page?: number,
+    limit?: number
+  ): Promise<GetBookingsResponse> {
+    try {
+      return await this.getTutorBookings({
+        status: BookingStatus.PENDING,
+        page,
+        limit
+      });
+    } catch {
+      return {
+        success: false,
+        message: "Failed to fetch pending bookings",
+        data: [],
+        pagination: {
+          total: 0,
+          page: page || 1,
+          limit: limit || 10,
+          totalPages: 0
+        }
+      };
+    }
+  },
+
+  /**
+   * ৩. PENDING বুকিং এর কাউন্ট দেখবে
+   */
+  getPendingBookingsCount: async function (): Promise<PendingCountResponse> {
     try {
       const headers = await getHeaders();
-      const endpoint = '/api/tutors/bookings/stats';
+      const endpoint = 'tutors/bookings/pending-count';
+      const fullUrl = buildUrl(endpoint);
       
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const res = await fetch(fullUrl, {
         method: "GET",
         headers,
         credentials: "include",
-        cache: "no-cache",
+        cache: "no-store",
       });
 
-      const responseText = await res.text();
-      
-      if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
-        return await this.calculateStatsFromBookings();
+      if (res.ok) {
+        const result = await res.json();
+        return {
+          success: true,
+          message: "Pending count fetched successfully",
+          data: result.data || { count: 0 }
+        };
       }
       
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch {
-        return await this.calculateStatsFromBookings();
-      }
-
-      if (!res.ok) {
-        return await this.calculateStatsFromBookings();
-      }
-
       return {
         success: true,
-        message: "Booking statistics fetched successfully",
-        data: result.data || getDefaultStats()
+        message: "Pending count not available",
+        data: { count: 0 }
       };
       
     } catch {
       return {
+        success: false,
+        message: "Failed to fetch pending count",
+        data: { count: 0 }
+      };
+    }
+  },
+
+  /**
+   * ৪. মিটিং লিংক আপডেট করবে
+   */
+  updateMeetingLink: async function (
+    bookingId: string,
+    meetingLink: string
+  ): Promise<BaseResponse & { data?: BookingWithUser }> {
+    try {
+      if (!bookingId) {
+        return {
+          success: false,
+          message: "Booking ID is required",
+          data: {} as BookingWithUser
+        };
+      }
+
+      if (!meetingLink) {
+        return {
+          success: false,
+          message: "Meeting link is required",
+          data: {} as BookingWithUser
+        };
+      }
+
+      const headers = await getHeaders();
+      const endpoint = `tutors/bookings/${bookingId}/meeting-link`;
+      const fullUrl = buildUrl(endpoint);
+      
+      const res = await fetch(fullUrl, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ meetingLink }),
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        return {
+          success: true,
+          message: "Meeting link updated successfully",
+          data: result.data || {} as BookingWithUser
+        };
+      }
+      
+      return {
+        success: false,
+        message: "Failed to update meeting link",
+        data: {} as BookingWithUser
+      };
+      
+    } catch {
+      return {
+        success: false,
+        message: "Failed to update meeting link",
+        data: {} as BookingWithUser
+      };
+    }
+  },
+
+  /**
+   * ৫. Quick action to confirm booking with meeting link
+   */
+  confirmBookingWithLink: async function (
+    bookingId: string,
+    meetingLink: string
+  ): Promise<UpdateBookingStatusResponse> {
+    try {
+      if (!bookingId) {
+        return {
+          success: false,
+          message: "Booking ID is required",
+          data: {} as Booking & { studentUser: StudentUser }
+        };
+      }
+
+      if (!meetingLink) {
+        return {
+          success: false,
+          message: "Meeting link is required for confirmation",
+          data: {} as Booking & { studentUser: StudentUser }
+        };
+      }
+
+      const headers = await getHeaders();
+      const endpoint = `tutors/bookings/${bookingId}/confirm`;
+      const fullUrl = buildUrl(endpoint);
+      
+      const res = await fetch(fullUrl, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ meetingLink, status: BookingStatus.CONFIRMED }),
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        return {
+          success: true,
+          message: "Booking confirmed successfully",
+          data: result.data || {} as Booking & { studentUser: StudentUser }
+        };
+      }
+      
+      return {
+        success: false,
+        message: "Failed to confirm booking",
+        data: {} as Booking & { studentUser: StudentUser }
+      };
+      
+    } catch {
+      return {
+        success: false,
+        message: "Failed to confirm booking",
+        data: {} as Booking & { studentUser: StudentUser }
+      };
+    }
+  },
+
+  /**
+   * ৬. Get notifications for tutor
+   */
+  getTutorNotifications: async function (): Promise<NotificationsResponse> {
+    try {
+      const headers = await getHeaders();
+      const endpoint = 'tutors/notifications';
+      const fullUrl = buildUrl(endpoint);
+      
+      const res = await fetch(fullUrl, {
+        method: "GET",
+        headers,
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        return {
+          success: true,
+          message: "Notifications fetched successfully",
+          data: result.data || []
+        };
+      }
+      
+      return {
+        success: false,
+        message: "Failed to fetch notifications",
+        data: []
+      };
+      
+    } catch {
+      return {
+        success: false,
+        message: "Failed to fetch notifications",
+        data: []
+      };
+    }
+  },
+
+  /**
+   * ৭. টিউটরের বুকিং স্ট্যাটিসটিক্স দেখবে
+   */
+  getBookingStats: async function (): Promise<GetBookingStatsResponse> {
+    try {
+      const headers = await getHeaders();
+      const endpoint = 'tutors/bookings/stats';
+      const fullUrl = buildUrl(endpoint);
+      
+      const res = await fetch(fullUrl, {
+        method: "GET",
+        headers,
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      if (res.ok) {
+        const result = await res.json();
+        return {
+          success: true,
+          message: "Booking statistics fetched successfully",
+          data: result.data || getDefaultStats()
+        };
+      }
+      
+      return await this.calculateStatsFromBookings();
+      
+    } catch {
+      return {
         success: true,
-        message: "Statistics loaded",
+        message: "Default statistics loaded",
         data: getDefaultStats()
       };
     }
@@ -405,7 +631,7 @@ export const tutorBookingService = {
   },
 
   /**
-   * ৩. একটি নির্দিষ্ট বুকিংয়ের ডিটেইল দেখবে
+   * ৮. একটি নির্দিষ্ট বুকিংয়ের ডিটেইল দেখবে
    */
   getBookingById: async function (
     bookingId: string
@@ -420,48 +646,29 @@ export const tutorBookingService = {
       }
 
       const headers = await getHeaders();
-      const endpoint = `/api/tutors/bookings/${bookingId}`;
+      const endpoint = `tutors/bookings/${bookingId}`;
+      const fullUrl = buildUrl(endpoint);
       
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const res = await fetch(fullUrl, {
         method: "GET",
         headers,
         credentials: "include",
-        cache: "no-cache",
+        cache: "no-store",
       });
 
-      const responseText = await res.text();
-      
-      if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+      if (res.ok) {
+        const result = await res.json();
         return {
-          success: false,
-          message: "Server error",
-          data: {} as BookingWithUser
+          success: true,
+          message: "Booking details fetched successfully",
+          data: result.data || {} as BookingWithUser
         };
       }
       
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch {
-        return {
-          success: false,
-          message: "Invalid response",
-          data: {} as BookingWithUser
-        };
-      }
-
-      if (!res.ok) {
-        return {
-          success: false,
-          message: result.message || "Failed to fetch booking details",
-          data: {} as BookingWithUser
-        };
-      }
-
       return {
-        success: true,
-        message: "Booking details fetched successfully",
-        data: result.data || {} as BookingWithUser
+        success: false,
+        message: "Failed to fetch booking details",
+        data: {} as BookingWithUser
       };
       
     } catch {
@@ -474,7 +681,7 @@ export const tutorBookingService = {
   },
 
   /**
-   * ৪. বুকিংয়ের স্ট্যাটাস আপডেট করবে
+   * ৯. বুকিংয়ের স্ট্যাটাস আপডেট করবে
    */
   updateBookingStatus: async function (
     bookingId: string,
@@ -498,48 +705,29 @@ export const tutorBookingService = {
       }
 
       const headers = await getHeaders();
-      const endpoint = `/api/tutors/bookings/${bookingId}/status`;
+      const endpoint = `tutors/bookings/${bookingId}/status`;
+      const fullUrl = buildUrl(endpoint);
       
-      const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+      const res = await fetch(fullUrl, {
         method: "PUT",
         headers,
         body: JSON.stringify(data),
         credentials: "include",
       });
 
-      const responseText = await res.text();
-      
-      if (responseText.trim().startsWith('<!DOCTYPE') || responseText.trim().startsWith('<html')) {
+      if (res.ok) {
+        const result = await res.json();
         return {
-          success: false,
-          message: "Server error",
-          data: {} as Booking & { studentUser: StudentUser }
+          success: true,
+          message: "Booking status updated successfully",
+          data: result.data || {} as Booking & { studentUser: StudentUser }
         };
       }
       
-      let result;
-      try {
-        result = JSON.parse(responseText);
-      } catch {
-        return {
-          success: false,
-          message: "Invalid response",
-          data: {} as Booking & { studentUser: StudentUser }
-        };
-      }
-
-      if (!res.ok) {
-        return {
-          success: false,
-          message: result.message || "Failed to update booking status",
-          data: {} as Booking & { studentUser: StudentUser }
-        };
-      }
-
       return {
-        success: true,
-        message: "Booking status updated successfully",
-        data: result.data || {} as Booking & { studentUser: StudentUser }
+        success: false,
+        message: "Failed to update booking status",
+        data: {} as Booking & { studentUser: StudentUser }
       };
       
     } catch {
@@ -552,7 +740,7 @@ export const tutorBookingService = {
   },
 
   /**
-   * Get upcoming bookings
+   * ১০. Get upcoming bookings
    */
   getUpcomingBookings: async function (
     limit?: number
@@ -582,7 +770,7 @@ export const tutorBookingService = {
   },
 
   /**
-   * Get recent bookings
+   * ১১. Get recent bookings
    */
   getRecentBookings: async function (
     limit?: number
@@ -616,7 +804,7 @@ export const tutorBookingService = {
   },
 
   /**
-   * Get bookings by status
+   * ১২. Get bookings by status
    */
   getBookingsByStatus: async function (
     status: BookingStatus,
@@ -643,6 +831,118 @@ export const tutorBookingService = {
           limit: limit || 10,
           totalPages: 0
         }
+      };
+    }
+  },
+
+  /**
+   * ১৩. Mark notification as read
+   */
+  markNotificationAsRead: async function (
+    notificationId: string
+  ): Promise<BaseResponse> {
+    try {
+      if (!notificationId) {
+        return {
+          success: false,
+          message: "Notification ID is required"
+        };
+      }
+
+      const headers = await getHeaders();
+      const endpoint = `tutors/notifications/${notificationId}/read`;
+      const fullUrl = buildUrl(endpoint);
+      
+      const res = await fetch(fullUrl, {
+        method: "PUT",
+        headers,
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        return {
+          success: true,
+          message: "Notification marked as read"
+        };
+      }
+      
+      return {
+        success: false,
+        message: "Failed to mark notification as read"
+      };
+      
+    } catch {
+      return {
+        success: false,
+        message: "Failed to mark notification as read"
+      };
+    }
+  },
+
+  /**
+   * ১৪. Mark all notifications as read
+   */
+  markAllNotificationsAsRead: async function (): Promise<BaseResponse> {
+    try {
+      const headers = await getHeaders();
+      const endpoint = 'tutors/notifications/mark-all-read';
+      const fullUrl = buildUrl(endpoint);
+      
+      const res = await fetch(fullUrl, {
+        method: "PUT",
+        headers,
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        return {
+          success: true,
+          message: "All notifications marked as read"
+        };
+      }
+      
+      return {
+        success: false,
+        message: "Failed to mark all notifications as read"
+      };
+      
+    } catch {
+      return {
+        success: false,
+        message: "Failed to mark all notifications as read"
+      };
+    }
+  },
+
+  /**
+   * ১৫. Test endpoint connectivity
+   */
+  testConnection: async function (): Promise<{success: boolean, message: string, url?: string}> {
+    try {
+      const testRes = await fetch(API_BASE_URL, {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      });
+      
+      if (testRes.ok) {
+        return {
+          success: true,
+          message: "Connected to server successfully",
+          url: API_BASE_URL
+        };
+      } else {
+        return {
+          success: false,
+          message: `Server responded with ${testRes.status}`,
+          url: API_BASE_URL
+        };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: `Connection failed: ${error.message}`,
+        url: API_BASE_URL
       };
     }
   }

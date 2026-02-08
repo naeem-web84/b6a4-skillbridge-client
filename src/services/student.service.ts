@@ -655,7 +655,7 @@ export const tutorDiscoveryService = {
     }
   },
 
-  // ✅ সিঙ্গেল টিউটর দেখা
+   
   getTutorById: async function (tutorId: string): Promise<BaseResponse & { data?: TutorProfile }> {
     try {
       const headers = await getHeaders();
