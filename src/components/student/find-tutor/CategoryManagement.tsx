@@ -46,7 +46,7 @@ export default function CategoryManagement() {
         setCategoryTutors(result.data.tutors || []);
       }
     } catch (error) {
-      console.error("Error fetching category tutors:", error);
+      setError("Error fetching category tutors");
     } finally {
       setLoadingTutors(false);
     }
@@ -66,38 +66,36 @@ export default function CategoryManagement() {
     setCategoryTutors([]);
   };
 
-  if (loading) return <div className="text-center py-8">Loading categories...</div>;
-  if (error) return <div className="text-red-600 p-4">Error: {error}</div>;
+  if (loading) return <div className="text-center py-8 text-muted-foreground">Loading categories...</div>;
+  if (error) return <div className="bg-destructive/10 text-destructive p-4 rounded">Error: {error}</div>;
 
   return (
     <div>
-      {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">Tutoring Categories</h2>
-        <p className="text-gray-600">Browse tutors by subject category</p>
+        <h2 className="text-2xl font-bold text-foreground">Tutoring Categories</h2>
+        <p className="text-muted-foreground">Browse tutors by subject category</p>
       </div>
 
-      {/* Categories Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map((category) => (
           <div
             key={category.id}
             onClick={() => handleCategoryClick(category)}
-            className="border rounded-lg p-5 hover:shadow-lg transition-shadow cursor-pointer hover:border-blue-300"
+            className="border rounded-lg p-5 hover:shadow-lg transition-shadow cursor-pointer hover:border-primary/50 bg-card"
           >
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-lg">{category.name}</h3>
+                <h3 className="font-bold text-lg text-foreground">{category.name}</h3>
                 {category.description && (
-                  <p className="text-gray-600 text-sm mt-1">{category.description}</p>
+                  <p className="text-muted-foreground text-sm mt-1">{category.description}</p>
                 )}
               </div>
-              <div className="text-blue-600">
+              <div className="text-primary">
                 →
               </div>
             </div>
             <div className="mt-4">
-              <button className="w-full px-4 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 text-sm">
+              <button className="w-full px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/80 transition-colors text-sm">
                 View Tutors
               </button>
             </div>
@@ -105,58 +103,56 @@ export default function CategoryManagement() {
         ))}
       </div>
 
-      {/* Selected Category Details Modal */}
       {selectedCategory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold">{selectedCategory.name}</h2>
+                  <h2 className="text-2xl font-bold text-foreground">{selectedCategory.name}</h2>
                   {selectedCategory.description && (
-                    <p className="text-gray-600 mt-1">{selectedCategory.description}</p>
+                    <p className="text-muted-foreground mt-1">{selectedCategory.description}</p>
                   )}
                 </div>
                 <button
                   onClick={closeCategoryDetails}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-muted-foreground hover:text-foreground text-2xl transition-colors"
                 >
                   ×
                 </button>
               </div>
 
-              {/* Tutors in this category */}
               <div className="mb-6">
-                <h3 className="font-semibold text-lg mb-4">
+                <h3 className="font-semibold text-lg mb-4 text-foreground">
                   Tutors in {selectedCategory.name}
                   {categoryTutors.length > 0 && (
-                    <span className="ml-2 text-sm font-normal text-gray-500">
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">
                       ({categoryTutors.length} tutors)
                     </span>
                   )}
                 </h3>
 
                 {loadingTutors ? (
-                  <div className="text-center py-8">Loading tutors...</div>
+                  <div className="text-center py-8 text-muted-foreground">Loading tutors...</div>
                 ) : categoryTutors.length === 0 ? (
-                  <div className="text-center py-8 bg-gray-50 rounded">
-                    <div className="text-gray-400 text-4xl mb-3">👨‍🏫</div>
-                    <p className="text-gray-600">No tutors found in this category</p>
+                  <div className="text-center py-8 bg-muted rounded">
+                    <div className="text-muted-foreground text-4xl mb-3">👨‍🏫</div>
+                    <p className="text-muted-foreground">No tutors found in this category</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {categoryTutors.slice(0, 6).map((tutor) => (
-                      <div key={tutor.id} className="border rounded p-4 hover:shadow">
+                      <div key={tutor.id} className="border rounded p-4 hover:shadow bg-card transition-shadow">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-semibold">{tutor.name}</h4>
-                            <p className="text-gray-600 text-sm">{tutor.headline}</p>
+                            <h4 className="font-semibold text-foreground">{tutor.name}</h4>
+                            <p className="text-muted-foreground text-sm">{tutor.headline}</p>
                           </div>
                           <div className="text-right">
-                            <div className="text-lg font-bold text-green-600">
+                            <div className="text-lg font-bold text-green-600 dark:text-green-400">
                               ${tutor.hourlyRate}<span className="text-sm">/hr</span>
                             </div>
-                            <div className="text-yellow-500 text-sm">
+                            <div className="text-yellow-500 dark:text-yellow-400 text-sm">
                               ★ {tutor.rating}/5
                             </div>
                           </div>
@@ -165,10 +161,9 @@ export default function CategoryManagement() {
                           <button
                             onClick={() => {
                               closeCategoryDetails();
-                              // You could navigate to tutor details or open a modal
                               alert(`Viewing tutor: ${tutor.name}`);
                             }}
-                            className="w-full px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
+                            className="w-full px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-sm"
                           >
                             View Profile
                           </button>
@@ -182,7 +177,7 @@ export default function CategoryManagement() {
                   <div className="text-center mt-4">
                     <button
                       onClick={() => alert(`Showing all ${categoryTutors.length} tutors in ${selectedCategory.name}`)}
-                      className="px-4 py-2 border border-blue-600 text-blue-600 rounded hover:bg-blue-50"
+                      className="px-4 py-2 border border-primary text-primary rounded hover:bg-primary/10 transition-colors"
                     >
                       View All {categoryTutors.length} Tutors
                     </button>
@@ -190,31 +185,30 @@ export default function CategoryManagement() {
                 )}
               </div>
 
-              {/* Category Stats */}
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h4 className="font-semibold mb-3">Category Information</h4>
+              <div className="p-4 bg-muted rounded-lg">
+                <h4 className="font-semibold mb-3 text-foreground">Category Information</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">{categoryTutors.length}</div>
-                    <div className="text-sm text-gray-600">Available Tutors</div>
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{categoryTutors.length}</div>
+                    <div className="text-sm text-muted-foreground">Available Tutors</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                       {categoryTutors.length > 0 
                         ? `$${(categoryTutors.reduce((sum, t) => sum + t.hourlyRate, 0) / categoryTutors.length).toFixed(0)}`
                         : '$0'
                       }
                     </div>
-                    <div className="text-sm text-gray-600">Avg. Hourly Rate</div>
+                    <div className="text-sm text-muted-foreground">Avg. Hourly Rate</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-600">
+                    <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                       {categoryTutors.length > 0
                         ? (categoryTutors.reduce((sum, t) => sum + t.rating, 0) / categoryTutors.length).toFixed(1)
                         : '0.0'
                       }
                     </div>
-                    <div className="text-sm text-gray-600">Avg. Rating</div>
+                    <div className="text-sm text-muted-foreground">Avg. Rating</div>
                   </div>
                 </div>
               </div>
@@ -222,7 +216,7 @@ export default function CategoryManagement() {
               <div className="mt-6 flex justify-end">
                 <button
                   onClick={closeCategoryDetails}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
                 >
                   Close
                 </button>
@@ -232,12 +226,11 @@ export default function CategoryManagement() {
         </div>
       )}
 
-      {/* No categories message */}
       {categories.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">📚</div>
-          <h3 className="text-xl font-semibold text-gray-600">No categories available</h3>
-          <p className="text-gray-500 mt-2">Categories will be added by administrators.</p>
+          <div className="text-muted-foreground text-6xl mb-4">📚</div>
+          <h3 className="text-xl font-semibold text-muted-foreground">No categories available</h3>
+          <p className="text-muted-foreground mt-2">Categories will be added by administrators.</p>
         </div>
       )}
     </div>

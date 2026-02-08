@@ -65,7 +65,7 @@ export default function BookingManagement() {
       const result = await studentFindTutorService.booking.cancelBooking(bookingId);
       if (result.success) {
         alert("Booking cancelled successfully!");
-        fetchBookings(); // Refresh list
+        fetchBookings();
       } else {
         alert(`Failed to cancel booking: ${result.message}`);
       }
@@ -76,62 +76,60 @@ export default function BookingManagement() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'COMPLETED': return 'bg-green-100 text-green-800';
-      case 'CONFIRMED': return 'bg-blue-100 text-blue-800';
-      case 'PENDING': return 'bg-yellow-100 text-yellow-800';
-      case 'CANCELLED': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'COMPLETED': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'CONFIRMED': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'PENDING': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'CANCELLED': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
-  if (loading) return <div className="text-center py-8">Loading bookings...</div>;
+  if (loading) return <div className="text-center py-8 text-muted-foreground">Loading bookings...</div>;
 
   return (
     <div>
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold">My Bookings</h2>
-          <p className="text-gray-600">Manage your tutoring sessions</p>
+          <h2 className="text-2xl font-bold text-foreground">My Bookings</h2>
+          <p className="text-muted-foreground">Manage your tutoring sessions</p>
         </div>
         <button
           onClick={() => alert("Booking creation UI coming soon!")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
           + New Booking
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="mb-6 p-4 bg-card rounded-lg border">
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setStatusFilter('ALL')}
-            className={`px-4 py-2 rounded ${statusFilter === 'ALL' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+            className={`px-4 py-2 rounded transition-colors ${statusFilter === 'ALL' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
           >
             All
           </button>
           <button
             onClick={() => setStatusFilter('PENDING')}
-            className={`px-4 py-2 rounded ${statusFilter === 'PENDING' ? 'bg-yellow-600 text-white' : 'bg-white border'}`}
+            className={`px-4 py-2 rounded transition-colors ${statusFilter === 'PENDING' ? 'bg-yellow-600 text-white' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
           >
             Pending
           </button>
           <button
             onClick={() => setStatusFilter('CONFIRMED')}
-            className={`px-4 py-2 rounded ${statusFilter === 'CONFIRMED' ? 'bg-blue-600 text-white' : 'bg-white border'}`}
+            className={`px-4 py-2 rounded transition-colors ${statusFilter === 'CONFIRMED' ? 'bg-blue-600 text-white' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
           >
             Confirmed
           </button>
           <button
             onClick={() => setStatusFilter('COMPLETED')}
-            className={`px-4 py-2 rounded ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white' : 'bg-white border'}`}
+            className={`px-4 py-2 rounded transition-colors ${statusFilter === 'COMPLETED' ? 'bg-green-600 text-white' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
           >
             Completed
           </button>
           <button
             onClick={() => setStatusFilter('CANCELLED')}
-            className={`px-4 py-2 rounded ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-white border'}`}
+            className={`px-4 py-2 rounded transition-colors ${statusFilter === 'CANCELLED' ? 'bg-red-600 text-white' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'}`}
           >
             Cancelled
           </button>
@@ -139,20 +137,19 @@ export default function BookingManagement() {
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded mb-4">
+        <div className="bg-destructive/10 text-destructive p-4 rounded mb-4 border border-destructive/20">
           {error}
         </div>
       )}
 
-      {/* Bookings List */}
       {bookings.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">📅</div>
-          <h3 className="text-xl font-semibold text-gray-600">No bookings found</h3>
-          <p className="text-gray-500 mt-2">You haven't made any bookings yet.</p>
+          <div className="text-muted-foreground text-6xl mb-4">📅</div>
+          <h3 className="text-xl font-semibold text-muted-foreground">No bookings found</h3>
+          <p className="text-muted-foreground mt-2">You haven't made any bookings yet.</p>
           <button
             onClick={() => alert("Find a tutor to book!")}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
           >
             Find a Tutor
           </button>
@@ -160,18 +157,18 @@ export default function BookingManagement() {
       ) : (
         <div className="space-y-4">
           {bookings.map((booking) => (
-            <div key={booking.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+            <div key={booking.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow bg-card">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold">{booking.tutorProfile.headline}</h3>
+                  <h3 className="font-bold text-foreground">{booking.tutorProfile.headline}</h3>
                   <div className="flex items-center space-x-4 mt-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       📅 {new Date(booking.bookingDate).toLocaleDateString()}
                     </span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       ⏰ {booking.startTime} - {booking.endTime}
                     </span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       💰 ${booking.amount}
                     </span>
                     <span className={`px-2 py-1 text-xs rounded ${getStatusColor(booking.status)}`}>
@@ -179,11 +176,11 @@ export default function BookingManagement() {
                     </span>
                   </div>
                   <div className="mt-2">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       Category: {booking.category.name}
                     </span>
                     <span className="mx-2">•</span>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-muted-foreground">
                       Paid: {booking.isPaid ? '✅' : '❌'}
                     </span>
                   </div>
@@ -192,7 +189,7 @@ export default function BookingManagement() {
                   {booking.status === 'COMPLETED' && !booking.isPaid && (
                     <button
                       onClick={() => alert("Payment integration coming soon!")}
-                      className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm"
+                      className="px-3 py-1 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200 rounded hover:bg-green-200 dark:hover:bg-green-800 text-sm transition-colors"
                     >
                       Pay Now
                     </button>
@@ -200,14 +197,14 @@ export default function BookingManagement() {
                   {['PENDING', 'CONFIRMED'].includes(booking.status) && (
                     <button
                       onClick={() => cancelBooking(booking.id)}
-                      className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+                      className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 text-sm transition-colors"
                     >
                       Cancel
                     </button>
                   )}
                   <button
                     onClick={() => alert("View booking details coming soon!")}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
+                    className="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 text-sm transition-colors"
                   >
                     Details
                   </button>

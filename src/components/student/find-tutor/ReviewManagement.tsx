@@ -4,7 +4,6 @@
 import { useState, useEffect } from "react";
 import studentFindTutorService from "@/services/studentFindTutor.service";
 
-// Define local Review type that matches the API response
 interface Review {
   id: string;
   rating: number;
@@ -55,7 +54,6 @@ export default function ReviewManagement() {
       const result = await studentFindTutorService.review.getStudentReviews();
       
       if (result.success && result.data?.reviews) {
-        // Cast the API response to our local Review type
         setReviews(result.data.reviews as Review[]);
       } else {
         setError(result.message || "Failed to load reviews");
@@ -147,31 +145,29 @@ export default function ReviewManagement() {
     });
   };
 
-  if (loading) return <div className="text-center py-8">Loading reviews...</div>;
+  if (loading) return <div className="text-center py-8 text-muted-foreground">Loading reviews...</div>;
 
   return (
     <div>
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold">My Reviews</h2>
-          <p className="text-gray-600">Share your experience with tutors</p>
+          <h2 className="text-2xl font-bold text-foreground">My Reviews</h2>
+          <p className="text-muted-foreground">Share your experience with tutors</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
           + Write a Review
         </button>
       </div>
 
-      {/* Create/Edit Form Modal */}
       {(showCreateForm || editingReview) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-card rounded-lg max-w-md w-full">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold">
+                <h3 className="text-xl font-bold text-foreground">
                   {editingReview ? 'Edit Review' : 'Write a Review'}
                 </h3>
                 <button
@@ -180,7 +176,7 @@ export default function ReviewManagement() {
                     setEditingReview(null);
                     setFormData({ bookingId: "", rating: 5, comment: "" });
                   }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                  className="text-muted-foreground hover:text-foreground text-2xl transition-colors"
                 >
                   ×
                 </button>
@@ -189,7 +185,7 @@ export default function ReviewManagement() {
               <form onSubmit={editingReview ? handleUpdateReview : handleCreateReview}>
                 {!editingReview && (
                   <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1">
                       Booking ID
                     </label>
                     <input
@@ -197,17 +193,17 @@ export default function ReviewManagement() {
                       required
                       value={formData.bookingId}
                       onChange={(e) => setFormData({...formData, bookingId: e.target.value})}
-                      className="w-full p-2 border rounded"
+                      className="w-full p-2 border rounded bg-background text-foreground"
                       placeholder="Enter booking ID"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       You can only review completed bookings
                     </p>
                   </div>
                 )}
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Rating
                   </label>
                   <div className="flex space-x-1">
@@ -216,25 +212,25 @@ export default function ReviewManagement() {
                         key={star}
                         type="button"
                         onClick={() => setFormData({...formData, rating: star})}
-                        className="text-3xl focus:outline-none"
+                        className="text-3xl focus:outline-none text-yellow-500 dark:text-yellow-400"
                       >
                         {star <= formData.rating ? '★' : '☆'}
                       </button>
                     ))}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-sm text-muted-foreground mt-1">
                     Selected: {formData.rating}/5 stars
                   </div>
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Comment (Optional)
                   </label>
                   <textarea
                     value={formData.comment}
                     onChange={(e) => setFormData({...formData, comment: e.target.value})}
-                    className="w-full p-2 border rounded h-32"
+                    className="w-full p-2 border rounded h-32 bg-background text-foreground"
                     placeholder="Share your experience..."
                   />
                 </div>
@@ -247,13 +243,13 @@ export default function ReviewManagement() {
                       setEditingReview(null);
                       setFormData({ bookingId: "", rating: 5, comment: "" });
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50"
+                    className="px-4 py-2 border border-input rounded hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
                   >
                     {editingReview ? 'Update Review' : 'Submit Review'}
                   </button>
@@ -265,45 +261,44 @@ export default function ReviewManagement() {
       )}
 
       {error && (
-        <div className="bg-red-50 text-red-700 p-4 rounded mb-4">
+        <div className="bg-destructive/10 text-destructive p-4 rounded mb-4 border border-destructive/20">
           {error}
         </div>
       )}
 
-      {/* Reviews List */}
       {reviews.length === 0 ? (
         <div className="text-center py-12">
-          <div className="text-gray-400 text-6xl mb-4">⭐</div>
-          <h3 className="text-xl font-semibold text-gray-600">No reviews yet</h3>
-          <p className="text-gray-500 mt-2">Share your experience with tutors you've worked with.</p>
+          <div className="text-muted-foreground text-6xl mb-4">⭐</div>
+          <h3 className="text-xl font-semibold text-muted-foreground">No reviews yet</h3>
+          <p className="text-muted-foreground mt-2">Share your experience with tutors you've worked with.</p>
         </div>
       ) : (
         <div className="space-y-6">
           {reviews.map((review) => (
-            <div key={review.id} className="border rounded-lg p-5 hover:shadow-md transition-shadow">
+            <div key={review.id} className="border rounded-lg p-5 hover:shadow-md transition-shadow bg-card">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
-                    <div className="text-yellow-500 text-xl">
+                    <div className="text-yellow-500 dark:text-yellow-400 text-xl">
                       {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
                     </div>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-muted-foreground">
                       ({review.rating}/5)
                     </span>
                     {review.isVerified && (
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                      <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs rounded">
                         ✓ Verified
                       </span>
                     )}
                   </div>
                   
-                  <h3 className="font-bold mt-2">{review.tutor?.headline || 'Tutor'}</h3>
+                  <h3 className="font-bold mt-2 text-foreground">{review.tutor?.headline || 'Tutor'}</h3>
                   
                   {review.comment && (
-                    <p className="text-gray-700 mt-2">{review.comment}</p>
+                    <p className="text-foreground mt-2">{review.comment}</p>
                   )}
                   
-                  <div className="mt-4 text-sm text-gray-500">
+                  <div className="mt-4 text-sm text-muted-foreground">
                     <span>
                       Reviewed on {new Date(review.createdAt).toLocaleDateString()}
                     </span>
@@ -321,13 +316,13 @@ export default function ReviewManagement() {
                 <div className="flex space-x-2 ml-4">
                   <button
                     onClick={() => startEditReview(review)}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-sm"
+                    className="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-sm"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteReview(review.id)}
-                    className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+                    className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm"
                   >
                     Delete
                   </button>
@@ -338,20 +333,19 @@ export default function ReviewManagement() {
         </div>
       )}
 
-      {/* Statistics */}
       {reviews.length > 0 && (
-        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold mb-3">Review Statistics</h3>
+        <div className="mt-8 p-4 bg-muted rounded-lg">
+          <h3 className="font-semibold mb-3 text-foreground">Review Statistics</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-2xl font-bold text-blue-600">{reviews.length}</div>
-              <div className="text-sm text-gray-600">Total Reviews</div>
+              <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{reviews.length}</div>
+              <div className="text-sm text-muted-foreground">Total Reviews</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-yellow-600">
+              <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
                 {(reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)}
               </div>
-              <div className="text-sm text-gray-600">Average Rating</div>
+              <div className="text-sm text-muted-foreground">Average Rating</div>
             </div>
           </div>
         </div>
