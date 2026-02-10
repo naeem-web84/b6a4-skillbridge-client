@@ -15,7 +15,7 @@ import adminService, {
   UpdateReviewData,
   CreateCategoryData,
   CreateNotificationData
-} from '@/services/admin/admin.service';
+} from '@/services/admin.service';
 
 interface TestResult {
   name: string;

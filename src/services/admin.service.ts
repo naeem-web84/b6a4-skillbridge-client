@@ -1,15 +1,13 @@
-// services/admin/admin.service.ts
 import { env } from "@/env";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-// ==================== TYPES ====================
-interface BaseResponse {
+export interface BaseResponse {
   success: boolean;
   message: string;
 }
 
-interface User {
+export interface AdminUser {
   id: string;
   name: string;
   email: string;
@@ -20,9 +18,13 @@ interface User {
   createdAt: string;
   updatedAt: string;
   profile?: any;
+  _count?: {
+    sessions?: number;
+    accounts?: number;
+  };
 }
 
-interface TutorProfile {
+export interface TutorProfile {
   id: string;
   userId: string;
   headline: string;
@@ -54,7 +56,7 @@ interface TutorProfile {
   };
 }
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   description?: string;
@@ -66,7 +68,7 @@ interface Category {
   };
 }
 
-interface Booking {
+export interface Booking {
   id: string;
   studentUserId: string;
   tutorUserId: string;
@@ -77,7 +79,7 @@ interface Booking {
   startTime: string;
   endTime: string;
   duration: number;
-  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED | RESCHEDULED';
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
   amount: number;
   isPaid: boolean;
   meetingLink?: string;
@@ -121,7 +123,7 @@ interface Booking {
   };
 }
 
-interface Review {
+export interface Review {
   id: string;
   studentUserId: string;
   studentProfileId: string;
@@ -160,7 +162,7 @@ interface Review {
   };
 }
 
-interface PlatformStats {
+export interface PlatformStats {
   totalUsers: number;
   totalTutors: number;
   totalStudents: number;
@@ -177,7 +179,7 @@ interface PlatformStats {
   recentRevenue: Array<{ date: string; amount: number }>;
 }
 
-interface Notification {
+export interface Notification {
   id: string;
   userId: string;
   title: string;
@@ -191,8 +193,7 @@ interface Notification {
   readAt?: string;
 }
 
-// Filter interfaces
-interface UserFilters {
+export interface UserFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -202,7 +203,7 @@ interface UserFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-interface TutorFilters {
+export interface TutorFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -213,7 +214,7 @@ interface TutorFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-interface BookingFilters {
+export interface BookingFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -224,7 +225,7 @@ interface BookingFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-interface CategoryFilters {
+export interface CategoryFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -232,7 +233,7 @@ interface CategoryFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-interface ReviewFilters {
+export interface ReviewFilters {
   page?: number;
   limit?: number;
   search?: string;
@@ -243,15 +244,14 @@ interface ReviewFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
-// Update interfaces
-interface UpdateUserData {
+export interface UpdateUserData {
   name?: string;
   role?: string;
   status?: string;
   emailVerified?: boolean;
 }
 
-interface UpdateTutorData {
+export interface UpdateTutorData {
   headline?: string;
   bio?: string;
   hourlyRate?: number;
@@ -263,12 +263,12 @@ interface UpdateTutorData {
   completedSessions?: number;
 }
 
-interface UpdateCategoryData {
+export interface UpdateCategoryData {
   name?: string;
   description?: string;
 }
 
-interface UpdateBookingData {
+export interface UpdateBookingData {
   status?: string;
   amount?: number;
   isPaid?: boolean;
@@ -276,18 +276,18 @@ interface UpdateBookingData {
   notes?: string;
 }
 
-interface UpdateReviewData {
+export interface UpdateReviewData {
   rating?: number;
   comment?: string;
   isVerified?: boolean;
 }
 
-interface CreateCategoryData {
+export interface CreateCategoryData {
   name: string;
   description?: string;
 }
 
-interface CreateNotificationData {
+export interface CreateNotificationData {
   userId: string;
   title: string;
   message?: string;
@@ -296,8 +296,7 @@ interface CreateNotificationData {
   relatedType?: string;
 }
 
-// Paginated response
-interface PaginatedResponse<T> extends BaseResponse {
+export interface PaginatedResponse<T> extends BaseResponse {
   data: T[];
   pagination?: {
     total: number;
@@ -309,7 +308,6 @@ interface PaginatedResponse<T> extends BaseResponse {
   };
 }
 
-// ==================== AUTH HELPER ====================
 const getAuthToken = async (): Promise<string | null> => {
   if (typeof window === 'undefined') {
     return null;
@@ -320,7 +318,6 @@ const getAuthToken = async (): Promise<string | null> => {
     const session = await authClient.getSession();
     return session?.data?.session?.token || null;
   } catch (error) {
-    console.error("Failed to get auth token:", error);
     return null;
   }
 };
@@ -338,7 +335,6 @@ const getHeaders = async (): Promise<HeadersInit> => {
   return headers;
 };
 
-// ==================== UTILITY FUNCTIONS ====================
 const buildQueryString = (filters?: any): string => {
   if (!filters) return '';
   
@@ -354,16 +350,12 @@ const buildQueryString = (filters?: any): string => {
   return queryString ? `?${queryString}` : '';
 };
 
-// ==================== USER MANAGEMENT SERVICE ====================
 export const userManagementService = {
-  // Get all users with filters
-  getAllUsers: async function (filters?: UserFilters): Promise<PaginatedResponse<User>> {
+  getAllUsers: async function (filters?: UserFilters): Promise<PaginatedResponse<AdminUser>> {
     try {
       const headers = await getHeaders();
       const queryString = buildQueryString(filters);
       const url = `${API_BASE_URL}/admin/users${queryString}`;
-      
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -373,7 +365,6 @@ export const userManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Users response:", result);
 
       if (!res.ok) {
         return {
@@ -390,7 +381,6 @@ export const userManagementService = {
         pagination: result.pagination
       };
     } catch (error: any) {
-      console.error("Get users error:", error);
       return {
         success: false,
         message: error.message || "Failed to fetch users",
@@ -399,11 +389,43 @@ export const userManagementService = {
     }
   },
 
-  // Update user
-  updateUser: async function (userId: string, data: UpdateUserData): Promise<BaseResponse & { data?: User }> {
+  getUserById: async function (userId: string): Promise<BaseResponse & { data?: AdminUser }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 PUT /api/admin/users/" + userId, data);
+      const url = `${API_BASE_URL}/admin/users/${userId}`;
+      
+      const res = await fetch(url, {
+        method: "GET",
+        headers,
+        credentials: "include",
+        cache: "no-cache",
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        return {
+          success: false,
+          message: result.message || "Failed to fetch user"
+        };
+      }
+
+      return {
+        success: true,
+        message: result.message || "User fetched successfully",
+        data: result.data
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || "Failed to fetch user"
+      };
+    }
+  },
+
+  updateUser: async function (userId: string, data: UpdateUserData): Promise<BaseResponse & { data?: AdminUser }> {
+    try {
+      const headers = await getHeaders();
       
       const res = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
         method: "PUT",
@@ -413,7 +435,6 @@ export const userManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Update user response:", result);
 
       if (!res.ok) {
         return {
@@ -424,7 +445,6 @@ export const userManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Update user error:", error);
       return {
         success: false,
         message: error.message || "Failed to update user"
@@ -432,11 +452,9 @@ export const userManagementService = {
     }
   },
 
-  // Delete user
   deleteUser: async function (userId: string): Promise<BaseResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 DELETE /api/admin/users/" + userId);
       
       const res = await fetch(`${API_BASE_URL}/admin/users/${userId}`, {
         method: "DELETE",
@@ -445,7 +463,6 @@ export const userManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Delete user response:", result);
 
       if (!res.ok) {
         return {
@@ -456,7 +473,6 @@ export const userManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Delete user error:", error);
       return {
         success: false,
         message: error.message || "Failed to delete user"
@@ -465,16 +481,12 @@ export const userManagementService = {
   }
 };
 
-// ==================== TUTOR MANAGEMENT SERVICE ====================
 export const tutorManagementService = {
-  // Get all tutors with filters
   getAllTutors: async function (filters?: TutorFilters): Promise<PaginatedResponse<TutorProfile>> {
     try {
       const headers = await getHeaders();
       const queryString = buildQueryString(filters);
       const url = `${API_BASE_URL}/admin/tutors${queryString}`;
-      
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -484,7 +496,6 @@ export const tutorManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Tutors response:", result);
 
       if (!res.ok) {
         return {
@@ -501,7 +512,6 @@ export const tutorManagementService = {
         pagination: result.pagination
       };
     } catch (error: any) {
-      console.error("Get tutors error:", error);
       return {
         success: false,
         message: error.message || "Failed to fetch tutors",
@@ -510,11 +520,9 @@ export const tutorManagementService = {
     }
   },
 
-  // Update tutor profile
   updateTutorProfile: async function (tutorId: string, data: UpdateTutorData): Promise<BaseResponse & { data?: TutorProfile }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 PUT /api/admin/tutors/" + tutorId, data);
       
       const res = await fetch(`${API_BASE_URL}/admin/tutors/${tutorId}`, {
         method: "PUT",
@@ -524,7 +532,6 @@ export const tutorManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Update tutor response:", result);
 
       if (!res.ok) {
         return {
@@ -535,7 +542,6 @@ export const tutorManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Update tutor error:", error);
       return {
         success: false,
         message: error.message || "Failed to update tutor profile"
@@ -543,11 +549,9 @@ export const tutorManagementService = {
     }
   },
 
-  // Delete tutor
   deleteTutor: async function (tutorId: string): Promise<BaseResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 DELETE /api/admin/tutors/" + tutorId);
       
       const res = await fetch(`${API_BASE_URL}/admin/tutors/${tutorId}`, {
         method: "DELETE",
@@ -556,7 +560,6 @@ export const tutorManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Delete tutor response:", result);
 
       if (!res.ok) {
         return {
@@ -567,7 +570,6 @@ export const tutorManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Delete tutor error:", error);
       return {
         success: false,
         message: error.message || "Failed to delete tutor"
@@ -576,16 +578,12 @@ export const tutorManagementService = {
   }
 };
 
-// ==================== CATEGORY MANAGEMENT SERVICE ====================
 export const categoryManagementService = {
-  // Get all categories
   getAllCategories: async function (filters?: CategoryFilters): Promise<PaginatedResponse<Category>> {
     try {
       const headers = await getHeaders();
       const queryString = buildQueryString(filters);
       const url = `${API_BASE_URL}/admin/categories${queryString}`;
-      
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -595,7 +593,6 @@ export const categoryManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Categories response:", result);
 
       if (!res.ok) {
         return {
@@ -612,7 +609,6 @@ export const categoryManagementService = {
         pagination: result.pagination
       };
     } catch (error: any) {
-      console.error("Get categories error:", error);
       return {
         success: false,
         message: error.message || "Failed to fetch categories",
@@ -621,11 +617,9 @@ export const categoryManagementService = {
     }
   },
 
-  // Create category
   createCategory: async function (data: CreateCategoryData): Promise<BaseResponse & { data?: Category }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 POST /api/admin/categories", data);
       
       const res = await fetch(`${API_BASE_URL}/admin/categories`, {
         method: "POST",
@@ -635,7 +629,6 @@ export const categoryManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Create category response:", result);
 
       if (!res.ok) {
         return {
@@ -646,7 +639,6 @@ export const categoryManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Create category error:", error);
       return {
         success: false,
         message: error.message || "Failed to create category"
@@ -654,11 +646,9 @@ export const categoryManagementService = {
     }
   },
 
-  // Update category
   updateCategory: async function (categoryId: string, data: UpdateCategoryData): Promise<BaseResponse & { data?: Category }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 PUT /api/admin/categories/" + categoryId, data);
       
       const res = await fetch(`${API_BASE_URL}/admin/categories/${categoryId}`, {
         method: "PUT",
@@ -668,7 +658,6 @@ export const categoryManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Update category response:", result);
 
       if (!res.ok) {
         return {
@@ -679,7 +668,6 @@ export const categoryManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Update category error:", error);
       return {
         success: false,
         message: error.message || "Failed to update category"
@@ -687,11 +675,9 @@ export const categoryManagementService = {
     }
   },
 
-  // Delete category
   deleteCategory: async function (categoryId: string): Promise<BaseResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 DELETE /api/admin/categories/" + categoryId);
       
       const res = await fetch(`${API_BASE_URL}/admin/categories/${categoryId}`, {
         method: "DELETE",
@@ -700,7 +686,6 @@ export const categoryManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Delete category response:", result);
 
       if (!res.ok) {
         return {
@@ -711,7 +696,6 @@ export const categoryManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Delete category error:", error);
       return {
         success: false,
         message: error.message || "Failed to delete category"
@@ -720,16 +704,12 @@ export const categoryManagementService = {
   }
 };
 
-// ==================== BOOKING MANAGEMENT SERVICE ====================
 export const bookingManagementService = {
-  // Get all bookings
   getAllBookings: async function (filters?: BookingFilters): Promise<PaginatedResponse<Booking>> {
     try {
       const headers = await getHeaders();
       const queryString = buildQueryString(filters);
       const url = `${API_BASE_URL}/admin/bookings${queryString}`;
-      
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -739,7 +719,6 @@ export const bookingManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Bookings response:", result);
 
       if (!res.ok) {
         return {
@@ -756,7 +735,6 @@ export const bookingManagementService = {
         pagination: result.pagination
       };
     } catch (error: any) {
-      console.error("Get bookings error:", error);
       return {
         success: false,
         message: error.message || "Failed to fetch bookings",
@@ -765,11 +743,9 @@ export const bookingManagementService = {
     }
   },
 
-  // Update booking
   updateBooking: async function (bookingId: string, data: UpdateBookingData): Promise<BaseResponse & { data?: Booking }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 PUT /api/admin/bookings/" + bookingId, data);
       
       const res = await fetch(`${API_BASE_URL}/admin/bookings/${bookingId}`, {
         method: "PUT",
@@ -779,7 +755,6 @@ export const bookingManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Update booking response:", result);
 
       if (!res.ok) {
         return {
@@ -790,7 +765,6 @@ export const bookingManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Update booking error:", error);
       return {
         success: false,
         message: error.message || "Failed to update booking"
@@ -799,16 +773,12 @@ export const bookingManagementService = {
   }
 };
 
-// ==================== REVIEW MANAGEMENT SERVICE ====================
 export const reviewManagementService = {
-  // Get all reviews
   getAllReviews: async function (filters?: ReviewFilters): Promise<PaginatedResponse<Review>> {
     try {
       const headers = await getHeaders();
       const queryString = buildQueryString(filters);
       const url = `${API_BASE_URL}/admin/reviews${queryString}`;
-      
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -818,7 +788,6 @@ export const reviewManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Reviews response:", result);
 
       if (!res.ok) {
         return {
@@ -835,7 +804,6 @@ export const reviewManagementService = {
         pagination: result.pagination
       };
     } catch (error: any) {
-      console.error("Get reviews error:", error);
       return {
         success: false,
         message: error.message || "Failed to fetch reviews",
@@ -844,11 +812,9 @@ export const reviewManagementService = {
     }
   },
 
-  // Update review
   updateReview: async function (reviewId: string, data: UpdateReviewData): Promise<BaseResponse & { data?: Review }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 PUT /api/admin/reviews/" + reviewId, data);
       
       const res = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
         method: "PUT",
@@ -858,7 +824,6 @@ export const reviewManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Update review response:", result);
 
       if (!res.ok) {
         return {
@@ -869,7 +834,6 @@ export const reviewManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Update review error:", error);
       return {
         success: false,
         message: error.message || "Failed to update review"
@@ -877,11 +841,9 @@ export const reviewManagementService = {
     }
   },
 
-  // Delete review
   deleteReview: async function (reviewId: string): Promise<BaseResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 DELETE /api/admin/reviews/" + reviewId);
       
       const res = await fetch(`${API_BASE_URL}/admin/reviews/${reviewId}`, {
         method: "DELETE",
@@ -890,7 +852,6 @@ export const reviewManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Delete review response:", result);
 
       if (!res.ok) {
         return {
@@ -901,7 +862,6 @@ export const reviewManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Delete review error:", error);
       return {
         success: false,
         message: error.message || "Failed to delete review"
@@ -910,13 +870,10 @@ export const reviewManagementService = {
   }
 };
 
-// ==================== PLATFORM STATISTICS SERVICE ====================
 export const platformStatsService = {
-  // Get platform statistics
   getPlatformStats: async function (): Promise<BaseResponse & { data?: PlatformStats }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 GET /api/admin/stats");
       
       const res = await fetch(`${API_BASE_URL}/admin/stats`, {
         method: "GET",
@@ -926,7 +883,6 @@ export const platformStatsService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Platform stats response:", result);
 
       if (!res.ok) {
         return {
@@ -937,7 +893,6 @@ export const platformStatsService = {
 
       return result;
     } catch (error: any) {
-      console.error("Get platform stats error:", error);
       return {
         success: false,
         message: error.message || "Failed to fetch platform statistics"
@@ -946,13 +901,10 @@ export const platformStatsService = {
   }
 };
 
-// ==================== NOTIFICATION MANAGEMENT SERVICE ====================
 export const notificationManagementService = {
-  // Send notification
   sendNotification: async function (data: CreateNotificationData): Promise<BaseResponse & { data?: Notification }> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 POST /api/admin/notifications", data);
       
       const res = await fetch(`${API_BASE_URL}/admin/notifications`, {
         method: "POST",
@@ -962,7 +914,6 @@ export const notificationManagementService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Send notification response:", result);
 
       if (!res.ok) {
         return {
@@ -973,7 +924,6 @@ export const notificationManagementService = {
 
       return result;
     } catch (error: any) {
-      console.error("Send notification error:", error);
       return {
         success: false,
         message: error.message || "Failed to send notification"
@@ -982,7 +932,6 @@ export const notificationManagementService = {
   }
 };
 
-// ==================== MAIN EXPORT ====================
 export const adminService = {
   users: userManagementService,
   tutors: tutorManagementService,
@@ -994,3 +943,5 @@ export const adminService = {
 };
 
 export default adminService;
+
+export type User = AdminUser;

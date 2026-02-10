@@ -130,8 +130,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         if (session?.user) {
           redirectBasedOnRole(session.user);
         }
-      } catch (error) {
-        // Ignore errors
+      } catch (error) { 
       }
     };
     

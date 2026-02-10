@@ -5,12 +5,16 @@ export const adminRoutes : Route[] = [
       title: "User Management", 
       items: [
         {
-          title: "Update User",
-          url: "/update-user",
+          title: "Admin Dashboard",
+          url: "/admin-dashboard",
         },
         {
-          title: "make-tutor",
-          url: "/make-tutor",
+          title: "Update User",
+          url: "/admin-dashboard/update-user",
+        },
+        {
+          title: "Update Tutor",
+          url: "/admin-dashboard/update-tutor",
         },
       ],
     } 
