@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, LogOut, User } from "lucide-react";
+import { Menu, LogOut, User, BookOpen, Contact, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { 
   AccordionContent,
@@ -71,13 +71,13 @@ const Navbar = ({
     url: "/",
     src: "/logo.svg",
     alt: "logo",
-    title: "Your App",
+    title: "SkillBridge",
   },
   menu = [
-    { title: "Home", url: "/" },
+    { title: "Home", url: "/" }, 
     { title: "About", url: "/about" },
     { title: "Contact", url: "/contact" },
-  ],
+  ], // REMOVED "Browse Tutors" from default menu
   auth = {
     login: { title: "Login", url: "/login" },
     signup: { title: "Register", url: "/register" },
@@ -140,17 +140,31 @@ const Navbar = ({
     
     const roleSpecificMenu = [];
     
+    // Dashboard based on role
     if (user.role === "ADMIN") {
-      roleSpecificMenu.push({ title: "Admin Dashboard", url: "/admin-dashboard" });
+      roleSpecificMenu.push({ 
+        title: "Dashboard", 
+        url: "/admin-dashboard", 
+        icon: <User className="h-4 w-4" /> 
+      });
     } else if (user.role === "TUTOR") {
-      roleSpecificMenu.push({ title: "Tutor Dashboard", url: "/tutor-dashboard" });
+      roleSpecificMenu.push({ 
+        title: "Dashboard", 
+        url: "/tutor/dashboard", 
+        icon: <User className="h-4 w-4" /> 
+      });
     } else if (user.role === "STUDENT") {
-      roleSpecificMenu.push({ title: "Dashboard", url: "/dashboard" });
+      roleSpecificMenu.push({ 
+        title: "Dashboard", 
+        url: "/dashboard", 
+        icon: <User className="h-4 w-4" /> 
+      });
     }
     
+    // Common links for ALL authenticated users - NO "Browse Tutors"
     roleSpecificMenu.push(
-      { title: "Profile", url: "/profile" },
-      { title: "Settings", url: "/settings" }
+      { title: "About", url: "/about", icon: <BookOpen className="h-4 w-4" /> },
+      { title: "Contact", url: "/contact", icon: <Contact className="h-4 w-4" /> }
     );
     
     return roleSpecificMenu;
@@ -207,8 +221,9 @@ const Navbar = ({
       <Link
         key={item.title}
         href={item.url}
-        className="py-3 text-base font-semibold hover:text-primary transition-colors"
+        className="flex items-center gap-2 py-3 text-base font-semibold hover:text-primary transition-colors"
       >
+        {item.icon && <span className="opacity-70">{item.icon}</span>}
         {item.title}
       </Link>
     );
@@ -243,21 +258,14 @@ const Navbar = ({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/profile" className="cursor-pointer">
-            <User className="mr-2 h-4 w-4" />
-            Profile
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/settings" className="cursor-pointer">
-            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Settings
-          </Link>
-        </DropdownMenuItem>
+        {userMenu.map((item) => (
+          <DropdownMenuItem key={item.title} asChild>
+            <Link href={item.url} className="cursor-pointer flex items-center gap-2">
+              {item.icon || <div className="h-4 w-4" />}
+              {item.title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem 
           onClick={handleLogout}
@@ -295,16 +303,22 @@ const Navbar = ({
         <div className="hidden h-16 items-center justify-between lg:flex">
           {/* Logo and Navigation */}
           <div className="flex flex-1 items-center justify-start gap-8">
-            {/* Logo */}
+            {/* Logo with S icon */}
             <Link 
               href={logo.url} 
-              className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity group"
             >
-              <img
-                src={logo.src}
-                className="h-8 w-auto dark:invert"
-                alt={logo.alt}
-              />
+              <div className="relative">
+                <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <div className="relative">
+                    <Sparkles className="h-5 w-5 text-primary-foreground" />
+                    <span className="absolute inset-0 flex items-center justify-center text-primary-foreground font-bold text-lg">
+                      S
+                    </span>
+                  </div>
+                </div>
+                <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-primary animate-ping opacity-75"></div>
+              </div>
               <span className="text-lg font-semibold tracking-tighter whitespace-nowrap">
                 {logo.title}
               </span>
@@ -314,9 +328,12 @@ const Navbar = ({
             <div className="flex flex-1 justify-center">
               <NavigationMenu className="max-w-2xl">
                 <NavigationMenuList className="gap-1">
+                  {/* Show different menus based on authentication and role */}
                   {isAuthenticated ? (
+                    // For authenticated users, show role-specific menu
                     userMenu.map((item) => renderMenuItem(item))
                   ) : (
+                    // For non-authenticated users, show default menu (NO Browse Tutors)
                     menu.map((item) => renderMenuItem(item))
                   )}
                 </NavigationMenuList>
@@ -369,11 +386,14 @@ const Navbar = ({
                   <SheetHeader className="text-left">
                     <SheetTitle>
                       <Link href={logo.url} className="flex items-center gap-2">
-                        <img
-                          src={logo.src}
-                          className="h-8 w-auto dark:invert"
-                          alt={logo.alt}
-                        />
+                        <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
+                          <div className="relative">
+                            <Sparkles className="h-5 w-5 text-primary-foreground" />
+                            <span className="absolute inset-0 flex items-center justify-center text-primary-foreground font-bold text-lg">
+                              S
+                            </span>
+                          </div>
+                        </div>
                         <span className="text-lg font-semibold">{logo.title}</span>
                       </Link>
                     </SheetTitle>
@@ -403,20 +423,6 @@ const Navbar = ({
                               <span className="text-xs text-muted-foreground">{user?.email}</span>
                             </div>
                           </div>
-                          <Button 
-                            asChild 
-                            variant="outline" 
-                            className="w-full"
-                          >
-                            <Link href="/profile">Profile</Link>
-                          </Button>
-                          <Button 
-                            asChild 
-                            variant="outline" 
-                            className="w-full"
-                          >
-                            <Link href="/settings">Settings</Link>
-                          </Button>
                           <Button 
                             onClick={handleLogout}
                             variant="destructive"
@@ -451,11 +457,14 @@ const Navbar = ({
             href={logo.url} 
             className="flex items-center gap-2 flex-shrink-0"
           >
-            <img
-              src={logo.src}
-              className="h-8 w-auto dark:invert"
-              alt={logo.alt}
-            />
+            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
+              <div className="relative">
+                <Sparkles className="h-5 w-5 text-primary-foreground" />
+                <span className="absolute inset-0 flex items-center justify-center text-primary-foreground font-bold text-lg">
+                  S
+                </span>
+              </div>
+            </div>
             <span className="text-lg font-semibold tracking-tighter hidden sm:inline">
               {logo.title}
             </span>
@@ -497,11 +506,14 @@ const Navbar = ({
                 <SheetHeader className="text-left">
                   <SheetTitle>
                     <Link href={logo.url} className="flex items-center gap-2">
-                      <img
-                        src={logo.src}
-                        className="h-8 w-auto dark:invert"
-                        alt={logo.alt}
-                      />
+                      <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
+                        <div className="relative">
+                          <Sparkles className="h-5 w-5 text-primary-foreground" />
+                          <span className="absolute inset-0 flex items-center justify-center text-primary-foreground font-bold text-lg">
+                            S
+                          </span>
+                        </div>
+                      </div>
                       <span className="text-lg font-semibold">{logo.title}</span>
                     </Link>
                   </SheetTitle>
@@ -531,20 +543,6 @@ const Navbar = ({
                             <span className="text-xs text-muted-foreground">{user?.email}</span>
                           </div>
                         </div>
-                        <Button 
-                          asChild 
-                          variant="outline" 
-                          className="w-full"
-                        >
-                          <Link href="/profile">Profile</Link>
-                        </Button>
-                        <Button 
-                          asChild 
-                          variant="outline" 
-                          className="w-full"
-                        >
-                          <Link href="/settings">Settings</Link>
-                        </Button>
                         <Button 
                           onClick={handleLogout}
                           variant="destructive"

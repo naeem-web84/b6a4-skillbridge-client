@@ -1,0 +1,525 @@
+// components/tutors/TutorProfilePage.tsx
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { 
+  Star, 
+  Clock, 
+  Award, 
+  BookOpen, 
+  Users,
+  Calendar,
+  ChevronLeft,
+  MessageSquare,
+  Shield,
+  CheckCircle
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { homePageService } from '@/services/homePage.service';
+
+// Use the SAME Tutor type from homePage.service
+interface Tutor {
+  id: string;
+  userId: string;
+  name: string;
+  email?: string;
+  image?: string | null;
+  headline: string;
+  bio?: string;
+  hourlyRate: number;
+  rating: number;
+  totalReviews: number;
+  experienceYears?: number;
+  education?: string;
+  certifications?: string[];
+  completedSessions?: number;
+  categories?: Array<{
+    id: string;
+    name: string;
+    description?: string | null;
+  }>;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string | null;
+  createdAt: string;
+  student: {
+    id: string;
+    name: string;
+    image?: string | null;
+    grade?: string | null;
+  };
+}
+
+interface TutorProfile extends Tutor {
+  reviews: Review[];
+  statistics: {
+    totalStudents: number;
+    totalSessions: number;
+    availableSlots: number;
+    completedSessions: number;
+  };
+}
+
+interface TutorProfilePageProps {
+  initialTutor: TutorProfile; // Required initial data from server
+}
+
+export const TutorProfilePage: React.FC<TutorProfilePageProps> = ({ initialTutor }) => {
+  const router = useRouter();
+  const [tutor, setTutor] = useState<TutorProfile>(initialTutor);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [imageError, setImageError] = useState(false);
+
+  // We don't need useEffect for initial fetch because data is passed as prop
+  // But we might need it for real-time updates or if user navigates to different tutor
+
+  const handleBookSession = () => {
+    router.push(`/tutors/${tutor.id}/book`);
+  };
+
+  const handleMessage = () => {
+    // Implement messaging functionality
+    console.log('Message tutor:', tutor.id);
+  };
+
+  const renderStars = (rating: number, size: 'sm' | 'md' | 'lg' = 'md') => {
+    const starSize = {
+      sm: 'w-3 h-3',
+      md: 'w-4 h-4',
+      lg: 'w-5 h-5'
+    }[size];
+
+    return (
+      <div className="flex items-center">
+        {[...Array(5)].map((_, i) => (
+          <Star
+            key={i}
+            className={`${starSize} ${
+              i < Math.floor(rating)
+                ? 'fill-yellow-400 text-yellow-400'
+                : 'fill-muted text-muted'
+            }`}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const getAvatarUrl = () => {
+    if (tutor.image && !imageError) {
+      return tutor.image;
+    }
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(tutor.name)}&backgroundColor=3b82f6&textColor=ffffff`;
+  };
+
+  const getInitials = (name: string) => {
+    if (!name) return 'TU';
+    return name
+      .split(' ')
+      .map(part => part.charAt(0))
+      .join('')
+      .toUpperCase()
+      .substring(0, 2);
+  };
+
+  // We don't show loading state because initial data is already provided
+  // if (loading) { ... }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Back Button */}
+      <button
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-muted-foreground hover:text-card-foreground mb-8 transition-colors"
+      >
+        <ChevronLeft className="w-5 h-5" />
+        Back to search
+      </button>
+
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Left Column: Main Content */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Header */}
+          <div className="bg-card rounded-2xl p-6 border border-border">
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              {/* Avatar */}
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-card shadow-lg">
+                  <img
+                    src={getAvatarUrl()}
+                    alt={tutor.name}
+                    className="w-full h-full object-cover"
+                    onError={() => setImageError(true)}
+                  />
+                </div>
+                {tutor.experienceYears && tutor.experienceYears >= 5 && (
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                    <div className="bg-yellow-500 text-yellow-900 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 shadow-md">
+                      <Award className="w-3 h-3" />
+                      Verified Expert
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                  <div>
+                    <h1 className="text-3xl font-bold text-card-foreground mb-2">
+                      {tutor.name}
+                    </h1>
+                    <h2 className="text-lg text-muted-foreground mb-4">
+                      {tutor.headline}
+                    </h2>
+                    
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="flex items-center gap-2">
+                        {renderStars(tutor.rating, 'lg')}
+                        <span className="font-bold text-lg text-card-foreground">
+                          {tutor.rating.toFixed(1)}
+                        </span>
+                        <span className="text-muted-foreground">
+                          ({tutor.totalReviews} reviews)
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {tutor.statistics.totalStudents} students
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-3xl font-bold text-card-foreground">
+                      ${tutor.hourlyRate.toFixed(0)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">per hour</div>
+                  </div>
+                </div>
+
+                {/* Categories */}
+                {tutor.categories && tutor.categories.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {tutor.categories.map((category) => (
+                      <span
+                        key={category.id}
+                        className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium"
+                      >
+                        {category.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="border-b border-border">
+            <nav className="flex space-x-8">
+              {['overview', 'reviews', 'schedule'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`py-3 font-medium transition-colors relative ${
+                    activeTab === tab
+                      ? 'text-primary'
+                      : 'text-muted-foreground hover:text-card-foreground'
+                  }`}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  {activeTab === tab && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+                  )}
+                </button>
+              ))}
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          <div className="space-y-8">
+            {activeTab === 'overview' && (
+              <>
+                {/* About */}
+                <div className="bg-card rounded-xl p-6 border border-border">
+                  <h3 className="text-xl font-bold text-card-foreground mb-4">
+                    About {tutor.name.split(' ')[0]}
+                  </h3>
+                  <p className="text-muted-foreground whitespace-pre-line">
+                    {tutor.bio || 'No bio available'}
+                  </p>
+                </div>
+
+                {/* Experience & Education */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold text-card-foreground mb-4 flex items-center gap-2">
+                      <Award className="w-5 h-5" />
+                      Experience
+                    </h3>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="font-medium text-card-foreground">
+                          {tutor.experienceYears || 0}+ years experience
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          Professional tutoring
+                        </div>
+                      </div>
+                      <div>
+                        <div className="font-medium text-card-foreground">
+                          {tutor.completedSessions || 0}+ sessions completed
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          98% satisfaction rate
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold text-card-foreground mb-4 flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      Education
+                    </h3>
+                    {tutor.education ? (
+                      <p className="text-muted-foreground">{tutor.education}</p>
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Information not provided
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Certifications */}
+                {tutor.certifications && tutor.certifications.length > 0 && (
+                  <div className="bg-card rounded-xl p-6 border border-border">
+                    <h3 className="text-xl font-bold text-card-foreground mb-4">
+                      Certifications
+                    </h3>
+                    <ul className="space-y-2">
+                      {tutor.certifications.map((cert, index) => (
+                        <li key={index} className="flex items-center gap-2">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span className="text-muted-foreground">{cert}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="space-y-6">
+                <div className="bg-card rounded-xl p-6 border border-border">
+                  <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-xl font-bold text-card-foreground">
+                      Student Reviews ({tutor.reviews.length})
+                    </h3>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-card-foreground">
+                        {tutor.rating.toFixed(1)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Average rating
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {tutor.reviews.length > 0 ? (
+                      tutor.reviews.map((review) => (
+                        <div key={review.id} className="pb-6 border-b border-border last:border-0 last:pb-0">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                {review.student.image ? (
+                                  <img
+                                    src={review.student.image}
+                                    alt={review.student.name}
+                                    className="w-full h-full rounded-full object-cover"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                      const parent = target.parentElement;
+                                      if (parent) {
+                                        const fallback = document.createElement('span');
+                                        fallback.className = 'text-primary font-semibold';
+                                        fallback.textContent = review.student.name?.charAt(0) || 'S';
+                                        parent.appendChild(fallback);
+                                      }
+                                    }}
+                                  />
+                                ) : (
+                                  <span className="text-primary font-semibold">
+                                    {review.student.name?.charAt(0) || 'S'}
+                                  </span>
+                                )}
+                              </div>
+                              <div>
+                                <div className="font-medium text-card-foreground">
+                                  {review.student.name || 'Anonymous'}
+                                </div>
+                                {review.student.grade && (
+                                  <div className="text-xs text-muted-foreground">
+                                    Grade {review.student.grade}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex items-center gap-1">
+                                {renderStars(review.rating, 'sm')}
+                                <span className="font-medium text-card-foreground">
+                                  {review.rating.toFixed(1)}
+                                </span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {new Date(review.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-muted-foreground">
+                            {review.comment || 'No comment provided'}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">No reviews yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Sidebar */}
+        <div className="space-y-6">
+          {/* Booking Card */}
+          <div className="bg-card rounded-2xl p-6 border border-border sticky top-6">
+            <h3 className="text-xl font-bold text-card-foreground mb-6">
+              Book a Session
+            </h3>
+            
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <div className="font-medium text-card-foreground">
+                    {tutor.statistics.availableSlots || 0} slots available
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Next 30 days
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-blue-500" />
+                </div>
+                <div>
+                  <div className="font-medium text-card-foreground">
+                    Flexible scheduling
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    24/7 availability
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-green-500" />
+                </div>
+                <div>
+                  <div className="font-medium text-card-foreground">
+                    Payment protection
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Secure & reliable
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={handleBookSession}
+                className="w-full py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Calendar className="w-5 h-5" />
+                Book Session
+              </button>
+              
+              <button
+                onClick={handleMessage}
+                className="w-full py-3 border border-primary text-primary hover:bg-primary/10 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <MessageSquare className="w-5 h-5" />
+                Message Tutor
+              </button>
+            </div>
+
+            <div className="mt-6 pt-6 border-t border-border text-center">
+              <div className="text-xs text-muted-foreground">
+                <Shield className="w-3 h-3 inline mr-1" />
+                Secure payment • 24-hour cancellation
+              </div>
+            </div>
+          </div>
+
+          {/* Stats Card */}
+          <div className="bg-card rounded-2xl p-6 border border-border">
+            <h3 className="text-lg font-bold text-card-foreground mb-4">
+              Session Stats
+            </h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Total Students</span>
+                <span className="font-bold text-card-foreground">
+                  {tutor.statistics.totalStudents}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Sessions Completed</span>
+                <span className="font-bold text-card-foreground">
+                  {tutor.statistics.totalSessions}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Response Rate</span>
+                <span className="font-bold text-card-foreground">98%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Member Since</span>
+                <span className="font-bold text-card-foreground">
+                  {tutor.createdAt ? new Date(tutor.createdAt).getFullYear() : 'N/A'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TutorProfilePage;
