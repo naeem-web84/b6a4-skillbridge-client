@@ -16,6 +16,10 @@ export const adminRoutes : Route[] = [
           title: "Update Tutor",
           url: "/admin-dashboard/update-tutor",
         },
+        {
+          title: "Categories",
+          url: "/admin-dashboard/categories",
+        },
       ],
     } 
   ];
