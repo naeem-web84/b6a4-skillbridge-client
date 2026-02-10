@@ -20,6 +20,22 @@ export const adminRoutes : Route[] = [
           title: "Categories",
           url: "/admin-dashboard/categories",
         },
+        {
+          title: "Bookings & Reviews",
+          url: "/admin-dashboard/bookings-reviews",
+        },
+        {
+          title: "Stats",
+          url: "/admin-dashboard/stats",
+        },
+        {
+          title: "Notifications",
+          url: "/admin-dashboard/notification",
+        },
+        {
+          title: "Homepage",
+          url: "/",
+        },
       ],
     } 
   ];
