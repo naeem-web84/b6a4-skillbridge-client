@@ -1,9 +1,6 @@
-// services/tutorBooking.service.ts - CLEAN VERSION
 import { env } from "@/env";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-
-// ==================== TYPES ====================
 
 export enum BookingStatus {
   PENDING = "PENDING",
@@ -167,8 +164,6 @@ export interface NotificationsResponse extends BaseResponse {
   data?: NotificationItem[];
 }
 
-// ==================== HELPER FUNCTIONS ====================
-
 const getAuthToken = async (): Promise<string | null> => {
   if (typeof window === 'undefined') {
     return null;
@@ -213,12 +208,7 @@ const buildUrl = (path: string): string => {
   return `${base}/${cleanPath}`;
 };
 
-// ==================== MAIN SERVICE ====================
-
 export const tutorBookingService = {
-  /**
-   * ১. টিউটরের সব বুকিং দেখবে
-   */
   getTutorBookings: async function (
     filters?: GetBookingsFilters
   ): Promise<GetBookingsResponse> {
@@ -305,9 +295,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ২. শুধু PENDING বুকিং গুলো দেখবে
-   */
   getPendingBookings: async function (
     page?: number,
     limit?: number
@@ -333,9 +320,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৩. PENDING বুকিং এর কাউন্ট দেখবে
-   */
   getPendingBookingsCount: async function (): Promise<PendingCountResponse> {
     try {
       const headers = await getHeaders();
@@ -373,9 +357,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৪. মিটিং লিংক আপডেট করবে
-   */
   updateMeetingLink: async function (
     bookingId: string,
     meetingLink: string
@@ -432,9 +413,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৫. Quick action to confirm booking with meeting link
-   */
   confirmBookingWithLink: async function (
     bookingId: string,
     meetingLink: string
@@ -491,9 +469,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৬. Get notifications for tutor
-   */
   getTutorNotifications: async function (): Promise<NotificationsResponse> {
     try {
       const headers = await getHeaders();
@@ -531,9 +506,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৭. টিউটরের বুকিং স্ট্যাটিসটিক্স দেখবে
-   */
   getBookingStats: async function (): Promise<GetBookingStatsResponse> {
     try {
       const headers = await getHeaders();
@@ -567,9 +539,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * Calculate stats from bookings
-   */
   calculateStatsFromBookings: async function (): Promise<GetBookingStatsResponse> {
     try {
       const bookingsResult = await this.getTutorBookings({ limit: 1000 });
@@ -630,9 +599,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৮. একটি নির্দিষ্ট বুকিংয়ের ডিটেইল দেখবে
-   */
   getBookingById: async function (
     bookingId: string
   ): Promise<GetBookingByIdResponse> {
@@ -680,9 +646,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ৯. বুকিংয়ের স্ট্যাটাস আপডেট করবে
-   */
   updateBookingStatus: async function (
     bookingId: string,
     data: UpdateBookingStatusInput
@@ -739,9 +702,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ১০. Get upcoming bookings
-   */
   getUpcomingBookings: async function (
     limit?: number
   ): Promise<GetBookingsResponse> {
@@ -769,9 +729,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ১১. Get recent bookings
-   */
   getRecentBookings: async function (
     limit?: number
   ): Promise<GetBookingsResponse> {
@@ -803,9 +760,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ১২. Get bookings by status
-   */
   getBookingsByStatus: async function (
     status: BookingStatus,
     page?: number,
@@ -835,9 +789,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ১৩. Mark notification as read
-   */
   markNotificationAsRead: async function (
     notificationId: string
   ): Promise<BaseResponse> {
@@ -879,9 +830,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ১৪. Mark all notifications as read
-   */
   markAllNotificationsAsRead: async function (): Promise<BaseResponse> {
     try {
       const headers = await getHeaders();
@@ -914,9 +862,6 @@ export const tutorBookingService = {
     }
   },
 
-  /**
-   * ১৫. Test endpoint connectivity
-   */
   testConnection: async function (): Promise<{success: boolean, message: string, url?: string}> {
     try {
       const testRes = await fetch(API_BASE_URL, {

@@ -1,3 +1,4 @@
+// components/tutors/TutorCard.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -31,31 +32,30 @@ interface TutorCardProps {
   tutor: Tutor;
   compact?: boolean;
   showActions?: boolean;
-  onViewProfile?: (tutorId: string) => void;
+  onViewProfile?: (tutorId: string) => void; // This should trigger modal
 }
 
 export const TutorCard: React.FC<TutorCardProps> = ({ 
   tutor, 
   compact = false,
   showActions = true,
-  onViewProfile
+  onViewProfile // Parent component should pass this
 }) => {
   const [imageError, setImageError] = useState(false);
 
+  // FIXED: This should trigger modal, not page navigation
   const handleViewProfile = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
     if (onViewProfile) {
-      onViewProfile(tutor.id);
-    } else {
-      window.location.href = `/tutors/${tutor.id}`;
+      onViewProfile(tutor.id); // Call parent's modal function
     }
   };
 
   const handleLoginRedirect = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    window.location.href = `/login?redirect=/dashboard`;
+    window.location.href = '/login?redirect=/dashboard';
   };
 
   const renderStars = (rating: number, size: 'sm' | 'md' = 'md') => {
@@ -101,7 +101,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({
     return (
       <div 
         className="bg-card border border-border rounded-xl p-4 hover:shadow-md transition-all duration-200 cursor-pointer group hover:border-primary/30"
-        onClick={handleViewProfile}
+        onClick={handleViewProfile} // FIXED: Use modal handler
       >
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
@@ -156,7 +156,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({
       {/* Header with Avatar and Info */}
       <div 
         className="flex items-start gap-4 mb-4 cursor-pointer"
-        onClick={handleViewProfile}
+        onClick={handleViewProfile} // FIXED: Use modal handler
       >
         <div className="relative flex-shrink-0">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-card shadow-md bg-primary/10">
@@ -292,7 +292,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({
       {showActions && (
         <div className="flex flex-col gap-3">
           <button
-            onClick={handleViewProfile}
+            onClick={handleViewProfile} // FIXED: Use modal handler
             className="w-full px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg transition-colors text-sm flex items-center justify-center gap-2"
           >
             View Full Profile
@@ -314,7 +314,7 @@ export const TutorCard: React.FC<TutorCardProps> = ({
       {!showActions && (
         <div 
           className="pt-4 border-t border-border flex items-center justify-between text-sm cursor-pointer hover:text-primary transition-colors"
-          onClick={handleViewProfile}
+          onClick={handleViewProfile} // FIXED: Use modal handler
         >
           <span className="text-muted-foreground">View full profile</span>
           <ChevronRight className="w-4 h-4" />

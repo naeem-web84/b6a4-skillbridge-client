@@ -317,7 +317,7 @@ const getAuthToken = async (): Promise<string | null> => {
     const { authClient } = await import("@/lib/auth-client");
     const session = await authClient.getSession();
     return session?.data?.session?.token || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -380,10 +380,10 @@ export const userManagementService = {
         data: result.data || [],
         pagination: result.pagination
       };
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch users",
+        message: "Failed to fetch users",
         data: []
       };
     }
@@ -415,10 +415,10 @@ export const userManagementService = {
         message: result.message || "User fetched successfully",
         data: result.data
       };
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch user"
+        message: "Failed to fetch user"
       };
     }
   },
@@ -444,10 +444,10 @@ export const userManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to update user"
+        message: "Failed to update user"
       };
     }
   },
@@ -472,10 +472,10 @@ export const userManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to delete user"
+        message: "Failed to delete user"
       };
     }
   }
@@ -511,10 +511,10 @@ export const tutorManagementService = {
         data: result.data || [],
         pagination: result.pagination
       };
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch tutors",
+        message: "Failed to fetch tutors",
         data: []
       };
     }
@@ -541,10 +541,10 @@ export const tutorManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to update tutor profile"
+        message: "Failed to update tutor profile"
       };
     }
   },
@@ -569,10 +569,10 @@ export const tutorManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to delete tutor"
+        message: "Failed to delete tutor"
       };
     }
   }
@@ -608,10 +608,10 @@ export const categoryManagementService = {
         data: result.data || [],
         pagination: result.pagination
       };
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch categories",
+        message: "Failed to fetch categories",
         data: []
       };
     }
@@ -638,10 +638,10 @@ export const categoryManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to create category"
+        message: "Failed to create category"
       };
     }
   },
@@ -667,10 +667,10 @@ export const categoryManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to update category"
+        message: "Failed to update category"
       };
     }
   },
@@ -695,10 +695,10 @@ export const categoryManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to delete category"
+        message: "Failed to delete category"
       };
     }
   }
@@ -734,10 +734,10 @@ export const bookingManagementService = {
         data: result.data || [],
         pagination: result.pagination
       };
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch bookings",
+        message: "Failed to fetch bookings",
         data: []
       };
     }
@@ -764,10 +764,10 @@ export const bookingManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to update booking"
+        message: "Failed to update booking"
       };
     }
   }
@@ -803,10 +803,10 @@ export const reviewManagementService = {
         data: result.data || [],
         pagination: result.pagination
       };
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch reviews",
+        message: "Failed to fetch reviews",
         data: []
       };
     }
@@ -833,10 +833,10 @@ export const reviewManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to update review"
+        message: "Failed to update review"
       };
     }
   },
@@ -861,10 +861,10 @@ export const reviewManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to delete review"
+        message: "Failed to delete review"
       };
     }
   }
@@ -892,10 +892,10 @@ export const platformStatsService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch platform statistics"
+        message: "Failed to fetch platform statistics"
       };
     }
   }
@@ -923,10 +923,10 @@ export const notificationManagementService = {
       }
 
       return result;
-    } catch (error: any) {
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to send notification"
+        message: "Failed to send notification"
       };
     }
   }

@@ -1,7 +1,7 @@
-// hooks/use-toast.ts
+ 
 "use client"
 
-// This is from shadcn/ui toast implementation
+ 
 import * as React from "react"
 
 const TOAST_LIMIT = 1
@@ -76,7 +76,7 @@ const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a middleware
+      
       if (toastId) {
         toastTimeouts.forEach((_, id) => {
           if (id === toastId) {

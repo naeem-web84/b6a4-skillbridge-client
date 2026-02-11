@@ -1,4 +1,3 @@
-// components/tutor/bookings/BookingList.tsx
 import { useState, useEffect } from 'react';
 import { BookingStatus, BookingWithUser } from '@/services/tutorBooking.service';
 
@@ -61,7 +60,6 @@ export default function BookingsList({ bookings, onViewDetails, onStatusUpdate }
     setActiveDropdown(activeDropdown === bookingId ? null : bookingId);
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (activeDropdown && !(event.target as Element).closest('.dropdown-container')) {
@@ -180,7 +178,6 @@ export default function BookingsList({ bookings, onViewDetails, onStatusUpdate }
                             Actions
                           </button>
                           
-                          {/* DROPDOWN MENU - NON-TRANSPARENT BACKGROUND */}
                           {activeDropdown === booking.id && (
                             <div className="absolute right-0 -mt-6 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                               <div className="py-1">
@@ -201,7 +198,6 @@ export default function BookingsList({ bookings, onViewDetails, onStatusUpdate }
                                 })}
                               </div>
                               
-                              {/* Footer with close option */}
                               <div className="border-t border-gray-100 py-2 px-4">
                                 <button
                                   onClick={() => setActiveDropdown(null)}
@@ -223,7 +219,6 @@ export default function BookingsList({ bookings, onViewDetails, onStatusUpdate }
         </table>
       </div>
       
-      {/* Table Footer */}
       <div className="bg-gray-50 px-4 md:px-6 py-6 border-t border-gray-200">
         <div className="flex flex-col sm:flex-row justify-between items-center">
           <div className="text-sm text-black mb-2 sm:mb-0">
@@ -236,4 +231,4 @@ export default function BookingsList({ bookings, onViewDetails, onStatusUpdate }
       </div>
     </div>
   );
-}
+};

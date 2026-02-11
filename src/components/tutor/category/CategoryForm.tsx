@@ -1,4 +1,3 @@
-// components/tutor-category/CategoryForm.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -25,23 +24,19 @@ export function CategoryForm({
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [proficiencyLevel, setProficiencyLevel] = useState("");
 
-  // Debug
   useEffect(() => {
-    console.log("📝 CategoryForm - availableCategories:", availableCategories);
+    // Debug removed
   }, [availableCategories]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("📝 Form submitted:", { selectedCategoryId, proficiencyLevel });
     
     if (!selectedCategoryId) {
-      console.error("❌ No category selected");
       return;
     }
     
     onSubmit(selectedCategoryId, proficiencyLevel || undefined);
     
-    // Reset form
     setSelectedCategoryId("");
     setProficiencyLevel("");
   };
@@ -49,17 +44,13 @@ export function CategoryForm({
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Category Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             Select Category *
           </label>
           <select
             value={selectedCategoryId}
-            onChange={(e) => {
-              console.log("📝 Selected:", e.target.value);
-              setSelectedCategoryId(e.target.value);
-            }}
+            onChange={(e) => setSelectedCategoryId(e.target.value)}
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-gray-900 focus:border-gray-900 transition-colors text-base"
             disabled={loadingAvailable || adding || availableCategories.length === 0}
             required
@@ -72,7 +63,6 @@ export function CategoryForm({
             ))}
           </select>
           
-          {/* Status messages */}
           <div className="mt-3 space-y-2">
             {loadingAvailable && (
               <p className="text-sm text-gray-500 flex items-center gap-2">
@@ -96,7 +86,6 @@ export function CategoryForm({
           </div>
         </div>
 
-        {/* Proficiency Level */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
             Proficiency Level (Optional)
@@ -119,7 +108,6 @@ export function CategoryForm({
           </p>
         </div>
 
-        {/* Submit Button */}
         <button
           type="submit"
           disabled={!selectedCategoryId || adding || availableCategories.length === 0}

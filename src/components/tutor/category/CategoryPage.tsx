@@ -1,4 +1,3 @@
-// components/tutor-category/CategoryPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -30,88 +29,50 @@ export function CategoryPage() {
   const [adding, setAdding] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
 
-  // Debug useEffect
   useEffect(() => {
-    console.log("🔍 DEBUG - Current state:");
-    console.log("categories:", categories);
-    console.log("availableCategories:", availableCategories);
-    console.log("filteredAvailableCategories length:", 
-      availableCategories.filter(availableCat => 
-        availableCat && 
-        availableCat.id && 
-        !categories.some(tutorCat => 
-          tutorCat && 
-          tutorCat.category && 
-          tutorCat.category.id === availableCat.id
-        )
-      ).length
-    );
+    // Debug removed
   }, [categories, availableCategories]);
 
-  // Load tutor's categories
   const loadTutorCategories = async () => {
     setLoading(true);
     try {
-      console.log("🔄 Loading tutor categories...");
       const result = await categoryService.getTutorCategories();
-      
-      console.log("✅ Tutor categories result:", {
-        success: result.success,
-        message: result.message,
-        dataLength: result.data?.length,
-        firstItem: result.data?.[0]
-      });
       
       if (result.success && result.data) {
         setCategories(result.data);
       } else {
         toast.error(result.message || "Failed to load categories");
       }
-    } catch (error) {
-      console.error("❌ Error loading categories:", error);
+    } catch {
       toast.error("Failed to load categories");
     } finally {
       setLoading(false);
     }
   };
 
-  // Load available categories for dropdown
   const loadAvailableCategories = async () => {
     setLoadingAvailable(true);
     try {
-      console.log("🔄 Loading available categories...");
       const { data, error } = await categoryService.getAllCategories();
-      
-      console.log("✅ Available categories result:", {
-        dataLength: data?.length,
-        firstItem: data?.[0],
-        error
-      });
       
       if (data) {
         setAvailableCategories(data);
       } else {
         setAvailableCategories([]);
       }
-    } catch (error) {
-      console.error("❌ Error loading available categories:", error);
+    } catch {
       setAvailableCategories([]);
     } finally {
       setLoadingAvailable(false);
     }
   };
 
-  // Initialize data
   useEffect(() => {
-    console.log("🚀 CategoryPage mounted");
     loadTutorCategories();
     loadAvailableCategories();
   }, []);
 
-  // Add new category
   const handleAddCategory = async (categoryId: string, proficiencyLevel?: string) => {
-    console.log("➕ Adding category:", { categoryId, proficiencyLevel });
-    
     if (!categoryId) {
       toast.error("Please select a category");
       return;
@@ -124,73 +85,55 @@ export function CategoryPage() {
         proficiencyLevel
       });
 
-      console.log("✅ Add category result:", result);
-
       if (result.success) {
         toast.success("Category added successfully");
-        loadTutorCategories(); // Refresh list
+        loadTutorCategories();
         
-        // Remove added category from available list
         setAvailableCategories(prev => 
           prev.filter(cat => cat && cat.id !== categoryId)
         );
       } else {
         toast.error(result.message || "Failed to add category");
       }
-    } catch (error) {
-      console.error("❌ Add category error:", error);
+    } catch {
       toast.error("Failed to add category");
     } finally {
       setAdding(false);
     }
   };
 
-  // Remove category
   const handleRemoveCategory = async (tutorCategoryId: string) => {
-    console.log("🗑️ Removing category:", tutorCategoryId);
-    
     setRemoving(tutorCategoryId);
     try {
       const result = await categoryService.removeTeachingCategory(tutorCategoryId);
       
-      console.log("✅ Remove category result:", result);
-
       if (result.success) {
         toast.success("Category removed successfully");
         
-        // Add back to available categories
         const removedCategory = categories.find(cat => cat.id === tutorCategoryId);
         if (removedCategory && removedCategory.category && 
             !availableCategories.some(cat => cat && cat.id === removedCategory.category.id)) {
           setAvailableCategories(prev => [...prev, removedCategory.category]);
         }
         
-        // Remove from current list
         setCategories(prev => prev.filter(cat => cat.id !== tutorCategoryId));
       } else {
         toast.error(result.message || "Failed to remove category");
       }
-    } catch (error) {
-      console.error("❌ Remove category error:", error);
+    } catch {
       toast.error("Failed to remove category");
     } finally {
       setRemoving(null);
     }
   };
 
-  // Update proficiency level
   const handleUpdateProficiency = async (tutorCategoryId: string, proficiencyLevel: string) => {
-    console.log("📝 Updating proficiency:", { tutorCategoryId, proficiencyLevel });
-    
     try {
       const result = await categoryService.updateProficiencyLevel(tutorCategoryId, proficiencyLevel);
       
-      console.log("✅ Update proficiency result:", result);
-
       if (result.success) {
         toast.success("Proficiency level updated");
         
-        // Update local state
         setCategories(prev => 
           prev.map(cat => 
             cat.id === tutorCategoryId 
@@ -201,13 +144,11 @@ export function CategoryPage() {
       } else {
         toast.error(result.message || "Failed to update proficiency");
       }
-    } catch (error) {
-      console.error("❌ Update proficiency error:", error);
+    } catch {
       toast.error("Failed to update proficiency");
     }
   };
 
-  // Calculate filtered available categories
   const filteredAvailableCategories = availableCategories.filter(
     availableCat => 
       availableCat && 
@@ -219,17 +160,8 @@ export function CategoryPage() {
       )
   );
 
-  console.log("📊 UI Stats:", {
-    categories: categories.length,
-    available: availableCategories.length,
-    filtered: filteredAvailableCategories.length,
-    loading,
-    loadingAvailable
-  });
-
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
-      {/* Header Section */}
       <div className="space-y-4">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">
@@ -240,7 +172,6 @@ export function CategoryPage() {
           </p>
         </div>
 
-        {/* Stats Bar */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Current Categories</div>
@@ -257,7 +188,6 @@ export function CategoryPage() {
         </div>
       </div>
 
-      {/* Add Category Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -268,8 +198,6 @@ export function CategoryPage() {
           </div>
           <button
             onClick={() => {
-              console.clear();
-              console.log("🔄 Manual refresh triggered");
               loadTutorCategories();
               loadAvailableCategories();
             }}
@@ -283,7 +211,6 @@ export function CategoryPage() {
           </button>
         </div>
 
-        {/* Category Form */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
           <CategoryForm
             availableCategories={filteredAvailableCategories}
@@ -294,7 +221,6 @@ export function CategoryPage() {
         </div>
       </div>
 
-      {/* My Categories Section */}
       <div className="space-y-6">
         <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4">
           <div>
@@ -362,7 +288,6 @@ export function CategoryPage() {
           </div>
         )}
 
-        {/* Action Buttons */}
         {categories.length > 0 && (
           <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-800">
             <button
@@ -397,7 +322,6 @@ export function CategoryPage() {
         )}
       </div>
 
-      {/* Help Section */}
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-6 mt-8">
         <div className="flex items-start gap-4">
           <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">

@@ -1,9 +1,7 @@
-// services/tutorAvailability.service.ts
 import { env } from '@/env';
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// Types
 export interface CreateAvailabilitySlotInput {
   date: string | Date;
   startTime: string | Date;
@@ -79,14 +77,10 @@ export interface ApiErrorResponse {
 }
 
 export const tutorAvailabilityService = {
-  /**
-   * Create a new availability slot
-   */
   createAvailabilitySlot: async (
     data: CreateAvailabilitySlotInput
   ): Promise<CreateAvailabilityResponse> => {
     try {
-      // Format dates for API
       const formattedData = {
         ...data,
         date: data.date instanceof Date ? data.date.toISOString() : data.date,
@@ -123,7 +117,6 @@ export const tutorAvailabilityService = {
       const result = await response.json();
       return result;
     } catch (error: any) {
-      console.error('Error creating availability slot:', error);
       return {
         success: false,
         message: error.message || 'Network error occurred while creating availability slot',
@@ -131,14 +124,10 @@ export const tutorAvailabilityService = {
     }
   },
 
-  /**
-   * Get tutor's availability slots with optional filters
-   */
   getTutorAvailability: async (
     filters?: GetAvailabilityFilters
   ): Promise<GetAvailabilityResponse> => {
     try {
-      // Build query parameters
       const queryParams = new URLSearchParams();
       
       if (filters?.date) {
@@ -190,7 +179,6 @@ export const tutorAvailabilityService = {
       const result = await response.json();
       return result;
     } catch (error: any) {
-      console.error('Error getting availability slots:', error);
       return {
         success: false,
         message: error.message || 'Network error occurred while getting availability slots',
@@ -198,12 +186,8 @@ export const tutorAvailabilityService = {
     }
   },
 
-  /**
-   * Get single availability slot by ID
-   */
   getAvailabilitySlot: async (slotId: string): Promise<GetSingleSlotResponse> => {
     try {
-      // Clean and validate slotId
       const cleanSlotId = slotId.trim();
       if (!cleanSlotId) {
         return {
@@ -234,7 +218,6 @@ export const tutorAvailabilityService = {
       const result = await response.json();
       return result;
     } catch (error: any) {
-      console.error('Error getting availability slot:', error);
       return {
         success: false,
         message: error.message || 'Network error occurred while getting availability slot',
@@ -242,15 +225,11 @@ export const tutorAvailabilityService = {
     }
   },
 
-  /**
-   * Update an existing availability slot
-   */
   updateAvailabilitySlot: async (
     slotId: string,
     data: UpdateAvailabilitySlotInput
   ): Promise<UpdateAvailabilityResponse> => {
     try {
-      // Clean and validate slotId
       const cleanSlotId = slotId.trim();
       if (!cleanSlotId) {
         return {
@@ -259,7 +238,6 @@ export const tutorAvailabilityService = {
         };
       }
 
-      // Format dates for API
       const formattedData: any = {};
       if (data.date !== undefined) {
         formattedData.date = data.date instanceof Date ? data.date.toISOString() : data.date;
@@ -278,7 +256,6 @@ export const tutorAvailabilityService = {
         formattedData.isBooked = data.isBooked;
       }
 
-      // Check if there's any data to update
       if (Object.keys(formattedData).length === 0) {
         return {
           success: false,
@@ -309,7 +286,6 @@ export const tutorAvailabilityService = {
       const result = await response.json();
       return result;
     } catch (error: any) {
-      console.error('Error updating availability slot:', error);
       return {
         success: false,
         message: error.message || 'Network error occurred while updating availability slot',
@@ -317,12 +293,8 @@ export const tutorAvailabilityService = {
     }
   },
 
-  /**
-   * Delete an availability slot
-   */
   deleteAvailabilitySlot: async (slotId: string): Promise<DeleteAvailabilityResponse> => {
     try {
-      // Clean and validate slotId
       const cleanSlotId = slotId.trim();
       if (!cleanSlotId) {
         return {
@@ -353,7 +325,6 @@ export const tutorAvailabilityService = {
       const result = await response.json();
       return result;
     } catch (error: any) {
-      console.error('Error deleting availability slot:', error);
       return {
         success: false,
         message: error.message || 'Network error occurred while deleting availability slot',
@@ -361,9 +332,6 @@ export const tutorAvailabilityService = {
     }
   },
 
-  /**
-   * Helper function to format date and time for API submission
-   */
   formatDateTimeForAPI: (date: Date | string, time?: string): string => {
     let dateObj: Date;
     
@@ -381,20 +349,15 @@ export const tutorAvailabilityService = {
     return dateObj.toISOString();
   },
 
-  /**
-   * Helper function to check if a slot can be edited/deleted
-   */
   canModifySlot: (slot: AvailabilitySlot): { canModify: boolean; reason?: string } => {
     const now = new Date();
     const slotDate = new Date(slot.date);
     const slotStartTime = new Date(slot.startTime);
     
-    // Check if slot is booked
     if (slot.isBooked) {
       return { canModify: false, reason: 'Slot is already booked' };
     }
     
-    // Combine date and time for comparison
     const slotDateTime = new Date(
       slotDate.getFullYear(),
       slotDate.getMonth(),
@@ -404,7 +367,6 @@ export const tutorAvailabilityService = {
       slotStartTime.getSeconds()
     );
     
-    // Add 30 minutes buffer - can't modify slots that start in less than 30 minutes
     const bufferMinutes = 30;
     const cutoffTime = new Date(now.getTime() + bufferMinutes * 60000);
     
@@ -415,9 +377,6 @@ export const tutorAvailabilityService = {
     return { canModify: true };
   },
 
-  /**
-   * Helper function to get slots for a specific date range
-   */
   getSlotsForDateRange: async (
     startDate: Date | string,
     endDate: Date | string,
@@ -441,9 +400,6 @@ export const tutorAvailabilityService = {
     return { slots: [], error: result.message };
   },
 
-  /**
-   * Helper function to get upcoming available slots
-   */
   getUpcomingAvailableSlots: async (
     days: number = 7,
     includeBooked: boolean = false
@@ -464,7 +420,6 @@ export const tutorAvailabilityService = {
     const result = await tutorAvailabilityService.getTutorAvailability(filters);
     
     if (result.success && result.data) {
-      // Sort by date and time
       const sortedSlots = result.data.sort((a, b) => {
         const dateA = new Date(a.date);
         const dateB = new Date(b.date);
@@ -483,9 +438,6 @@ export const tutorAvailabilityService = {
     return { slots: [], error: result.message };
   },
 
-  /**
-   * Helper to format slot for display
-   */
   formatSlotForDisplay: (slot: AvailabilitySlot): string => {
     const date = new Date(slot.date);
     const startTime = new Date(slot.startTime);
@@ -513,9 +465,6 @@ export const tutorAvailabilityService = {
     return `${formattedDate} | ${formattedStartTime} - ${formattedEndTime}`;
   },
 
-  /**
-   * Check for overlapping slots locally before API call
-   */
   checkForOverlap: (
     slots: AvailabilitySlot[],
     newSlot: {
@@ -529,7 +478,6 @@ export const tutorAvailabilityService = {
     const newStart = new Date(newSlot.startTime);
     const newEnd = new Date(newSlot.endTime);
     
-    // Normalize dates to compare only date part
     const normalizeDate = (date: Date) => {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     };
@@ -537,7 +485,6 @@ export const tutorAvailabilityService = {
     const normalizedNewDate = normalizeDate(newDate);
     
     for (const slot of slots) {
-      // Skip the slot we're updating
       if (excludeSlotId && slot.id === excludeSlotId) {
         continue;
       }
@@ -548,12 +495,10 @@ export const tutorAvailabilityService = {
       
       const normalizedSlotDate = normalizeDate(slotDate);
       
-      // Check if dates match
       if (normalizedNewDate.getTime() !== normalizedSlotDate.getTime()) {
         continue;
       }
       
-      // Check for time overlap
       if (
         (newStart >= slotStart && newStart < slotEnd) ||
         (newEnd > slotStart && newEnd <= slotEnd) ||
@@ -566,15 +511,11 @@ export const tutorAvailabilityService = {
     return false;
   },
 
-  /**
-   * Validate slot data before sending to API
-   */
   validateSlotData: (
     data: CreateAvailabilitySlotInput | UpdateAvailabilitySlotInput
   ): { isValid: boolean; errors: string[] } => {
     const errors: string[] = [];
     
-    // Check start and end times
     if ('startTime' in data && 'endTime' in data && data.startTime && data.endTime) {
       const start = new Date(data.startTime);
       const end = new Date(data.endTime);
@@ -592,7 +533,6 @@ export const tutorAvailabilityService = {
       }
     }
     
-    // Check date if provided
     if ('date' in data && data.date) {
       const date = new Date(data.date);
       if (isNaN(date.getTime())) {
@@ -600,7 +540,6 @@ export const tutorAvailabilityService = {
       }
     }
     
-    // Check for minimum slot duration (15 minutes)
     if ('startTime' in data && 'endTime' in data && data.startTime && data.endTime) {
       const start = new Date(data.startTime);
       const end = new Date(data.endTime);

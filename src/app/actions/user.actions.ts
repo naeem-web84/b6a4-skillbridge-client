@@ -1,4 +1,3 @@
-// app/actions/user.actions.ts
 'use server';
 
 import { cookies } from "next/headers";
@@ -6,10 +5,7 @@ import { env } from "@/env";
 import { Roles } from "@/constants/role";
 
 const AUTH_URL = env.AUTH_URL;
-
-/**
- * Get user session from server-side
- */
+ 
 export async function getSessionServer() {
   try {
     const cookieStore = await cookies();
@@ -47,9 +43,7 @@ export async function getSessionServer() {
   }
 }
 
-/**
- * Get only user role from server-side
- */
+ 
 export async function getUserRoleServer(): Promise<string | null> {
   try {
     const sessionResult = await getSessionServer();
@@ -64,10 +58,7 @@ export async function getUserRoleServer(): Promise<string | null> {
     return null;
   }
 }
-
-/**
- * Check if user has specific role
- */
+ 
 export async function hasRole(role: string): Promise<boolean> {
   try {
     const userRole = await getUserRoleServer();
@@ -77,9 +68,7 @@ export async function hasRole(role: string): Promise<boolean> {
   }
 }
 
-/**
- * Check if user is tutor or admin
- */
+ 
 export async function hasTutorAccess(): Promise<boolean> {
   try {
     const userRole = await getUserRoleServer();
@@ -89,9 +78,7 @@ export async function hasTutorAccess(): Promise<boolean> {
   }
 }
 
-/**
- * Check if user is admin
- */
+ 
 export async function isAdmin(): Promise<boolean> {
   try {
     const userRole = await getUserRoleServer();
@@ -100,10 +87,7 @@ export async function isAdmin(): Promise<boolean> {
     return false;
   }
 }
-
-/**
- * Check if user is tutor
- */
+ 
 export async function isTutor(): Promise<boolean> {
   try {
     const userRole = await getUserRoleServer();
@@ -112,10 +96,7 @@ export async function isTutor(): Promise<boolean> {
     return false;
   }
 }
-
-/**
- * Check if user is student
- */
+ 
 export async function isStudent(): Promise<boolean> {
   try {
     const userRole = await getUserRoleServer();
@@ -124,10 +105,7 @@ export async function isStudent(): Promise<boolean> {
     return false;
   }
 }
-
-/**
- * Get complete user information
- */
+ 
 export async function getUserInfo() {
   try {
     const sessionResult = await getSessionServer();
@@ -162,10 +140,7 @@ export async function getUserInfo() {
     };
   }
 }
-
-/**
- * Get user ID if authenticated
- */
+ 
 export async function getUserId(): Promise<string | null> {
   try {
     const sessionResult = await getSessionServer();
@@ -179,10 +154,7 @@ export async function getUserId(): Promise<string | null> {
     return null;
   }
 }
-
-/**
- * Check if user is authenticated
- */
+ 
 export async function isAuthenticated(): Promise<boolean> {
   try {
     const sessionResult = await getSessionServer();
@@ -191,10 +163,7 @@ export async function isAuthenticated(): Promise<boolean> {
     return false;
   }
 }
-
-/**
- * Get user name/email
- */
+ 
 export async function getUserProfile() {
   try {
     const sessionResult = await getSessionServer();

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { TutorCard } from './TutorCard';
-import { TutorSearchBar } from './TutorSearchBar';
 import { 
   Star, 
   Award, 
@@ -17,7 +16,8 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { homePageService } from '@/services/homePage.service';
-import { TutorProfileModal } from './TutorProfileModal';
+import { TutorProfileModal } from './TutorProfileModal'; 
+import { QuickMatchQuiz } from './QuickMatchQuiz';
 
 type Tutor = {
   id: string;
@@ -86,7 +86,6 @@ export const TutorHomePage = () => {
   const loadInitialData = async () => {
     setLoading(true);
     try {
-      // Load all tutors for browse section
       const allResult = await homePageService.browseTutors({
         page: 1,
         limit: 8,
@@ -101,7 +100,6 @@ export const TutorHomePage = () => {
         }));
       }
 
-      // Mock categories for now
       setCategories([
         { id: 'math', name: 'Mathematics' },
         { id: 'science', name: 'Science' },
@@ -114,7 +112,6 @@ export const TutorHomePage = () => {
       ]);
 
     } catch (error) {
-      console.error('Error loading initial data:', error);
     } finally {
       setLoading(false);
     }
@@ -123,17 +120,15 @@ export const TutorHomePage = () => {
   const handleSearch = async (filters: SearchFilters) => {
     setSearching(true);
     setHasSearched(true);
-    console.log('🔍 Searching with filters:', filters);
     
     try {
       const searchParams: any = {
         page: 1,
-        limit: 4, // Show fewer results in search section
+        limit: 4,
         sortBy: 'rating',
         sortOrder: 'desc'
       };
 
-      // Add filters only if they have values
       if (filters.search && filters.search.trim()) {
         searchParams.search = filters.search.trim();
       }
@@ -155,13 +150,10 @@ export const TutorHomePage = () => {
       
       if (result.success && result.data) {
         setSearchResults(result.data.tutors);
-        console.log(`✅ Found ${result.data.tutors.length} search results`);
       } else {
-        console.error('❌ Search failed:', result.message);
         setSearchResults([]);
       }
     } catch (error) {
-      console.error('💥 Error searching tutors:', error);
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -177,7 +169,6 @@ export const TutorHomePage = () => {
         setTutors(result.data.tutors);
       }
     } catch (error) {
-      console.error('Error loading category tutors:', error);
     } finally {
       setLoading(false);
     }
@@ -204,7 +195,6 @@ export const TutorHomePage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section with Search */}
       <div className="relative overflow-hidden bg-gradient-to-br from-card to-secondary/30 dark:from-card dark:to-muted/30">
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         
@@ -224,44 +214,15 @@ export const TutorHomePage = () => {
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
               Connect with expert tutors for personalized 1-on-1 learning. Achieve your learning goals.
             </p>
-
-            {/* Search Bar */}
-            <div className="max-w-3xl mx-auto mb-12">
-              <TutorSearchBar
-                categories={categories}
-                onSearch={handleSearch}
-                isLoading={searching}
-              />
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-              {[
-                { label: 'Expert Tutors', value: `${stats.totalTutors}+`, icon: Users, color: 'text-blue-500' },
-                { label: 'Sessions Completed', value: '10K+', icon: Clock, color: 'text-green-500' },
-                { label: 'Avg Rating', value: stats.avgRating.toFixed(1), icon: Star, color: 'text-yellow-500' },
-                { label: 'Satisfaction', value: `${stats.studentSatisfaction}%`, icon: TrendingUp, color: 'text-purple-500' }
-              ].map((stat) => (
-                <div key={stat.label} className="bg-card/50 backdrop-blur-sm border border-border rounded-xl p-4">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                    <div className="text-2xl font-bold text-card-foreground">
-                      {stat.value}
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
-        {/* Search Results Section (Always visible when searching) */}
+        <div className="mb-16">
+          <QuickMatchQuiz onViewProfile={handleViewProfile}  />
+        </div>
+
         {hasSearched && (
           <section className="mb-16">
             <div className="flex items-center justify-between mb-8">
@@ -330,7 +291,6 @@ export const TutorHomePage = () => {
           </section>
         )}
 
-        {/* Browse by Category Section (Always visible) */}
         <section className="mb-16">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-card-foreground mb-3">
@@ -367,7 +327,6 @@ export const TutorHomePage = () => {
             ))}
           </div>
 
-          {/* Tutors by Category */}
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -413,7 +372,6 @@ export const TutorHomePage = () => {
           </div>
         </section>
 
-        {/* Why Choose Us */}
         <section className="mb-16">
           <div className="bg-gradient-to-r from-primary/5 to-purple-500/5 dark:from-primary/10 dark:to-purple-500/10 border border-border rounded-3xl p-8 md:p-12">
             <div className="text-center mb-12">
@@ -462,7 +420,6 @@ export const TutorHomePage = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
         <section className="text-center">
           <div className="bg-gradient-to-r from-primary to-purple-600 rounded-3xl p-8 md:p-12 text-primary-foreground">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -489,7 +446,6 @@ export const TutorHomePage = () => {
         </section>
       </div>
 
-      {/* Profile Modal */}
       {selectedTutorId && (
         <TutorProfileModal
           tutorId={selectedTutorId}

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,7 +15,6 @@ export const AvailabilityPage = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Load slots on component mount
   useEffect(() => {
     loadSlots();
   }, []);
@@ -40,7 +38,7 @@ export const AvailabilityPage = () => {
   };
 
   const handleCreateSuccess = () => {
-    loadSlots(); // Refresh the list
+    loadSlots();
   };
 
   const handleEditClick = (slot: AvailabilitySlot) => {
@@ -85,13 +83,11 @@ export const AvailabilityPage = () => {
           </p>
         </div>
 
-        {/* Create Slot Form Section */}
         <div className="mb-12 bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-xl font-semibold text-gray-800 mb-6">Add New Time Slot</h2>
           <CreateSlotForm onSuccess={handleCreateSuccess} />
         </div>
 
-        {/* Slots List Section */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-800">Your Availability Slots</h2>
@@ -117,7 +113,6 @@ export const AvailabilityPage = () => {
           />
         </div>
 
-        {/* Modals */}
         {selectedSlot && (
           <>
             <EditSlotModal

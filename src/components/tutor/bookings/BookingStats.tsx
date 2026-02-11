@@ -1,4 +1,3 @@
-// components/tutor/bookings/BookingStats.tsx
 import { BookingStats as StatsType } from '@/services/tutorBooking.service';
 
 interface BookingStatsProps {

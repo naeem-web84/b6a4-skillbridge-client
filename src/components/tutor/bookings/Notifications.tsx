@@ -1,4 +1,3 @@
-// components/tutor/Notifications.tsx - FIXED
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -24,8 +23,8 @@ export default function TutorNotifications() {
         setNotifications(result.data);
         setUnreadCount(result.data.filter(n => !n.isRead).length);
       }
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
+    } catch {
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
@@ -40,8 +39,8 @@ export default function TutorNotifications() {
         ));
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error("Error marking notification as read:", error);
+    } catch {
+      // Silent fail
     }
   };
 
@@ -52,8 +51,8 @@ export default function TutorNotifications() {
         setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
         setUnreadCount(0);
       }
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error);
+    } catch {
+      // Silent fail
     }
   };
 
@@ -132,7 +131,6 @@ export default function TutorNotifications() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
@@ -165,7 +163,6 @@ export default function TutorNotifications() {
         </div>
       </div>
 
-      {/* Notifications List */}
       <div className="space-y-3">
         {notifications.map((notification) => (
           <div
@@ -178,12 +175,10 @@ export default function TutorNotifications() {
             }`}
           >
             <div className="flex items-start gap-4">
-              {/* Icon */}
               <div className={`p-2 rounded-lg ${getNotificationColor(notification.type)}`}>
                 <span className="text-xl">{getNotificationIcon(notification.type)}</span>
               </div>
 
-              {/* Content */}
               <div className="flex-1">
                 <div className="flex justify-between items-start">
                   <div>
@@ -204,7 +199,6 @@ export default function TutorNotifications() {
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-3 mt-3">
                   {!notification.isRead && (
                     <button

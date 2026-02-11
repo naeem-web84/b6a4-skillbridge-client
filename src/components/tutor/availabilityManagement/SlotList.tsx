@@ -1,4 +1,3 @@
-// components/tutor/availabilityManagement/SlotList.tsx
 'use client';
 
 import { AvailabilitySlot } from '@/services/tutorAvailability.service';
@@ -34,7 +33,6 @@ export const SlotList = ({ slots, loading, onEdit, onDelete }: SlotListProps) =>
     );
   }
 
-  // Group slots by date
   const slotsByDate = slots.reduce((acc, slot) => {
     const date = new Date(slot.date).toLocaleDateString('en-US', {
       weekday: 'long',

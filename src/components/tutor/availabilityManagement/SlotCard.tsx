@@ -1,4 +1,3 @@
-// components/tutor/availabilityManagement/SlotCard.tsx
 'use client';
 
 import { AvailabilitySlot } from '@/services/tutorAvailability.service';

@@ -1,4 +1,4 @@
-import UserManagement from '@/components/admin/user-management/UserManagement'
+import UserManagement from '@/components/admin/user-management/UserManagement';
  
 
 export default function AdminUpdateUserPage() {

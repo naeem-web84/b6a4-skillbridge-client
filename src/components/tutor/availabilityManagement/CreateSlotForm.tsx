@@ -1,4 +1,3 @@
-// components/tutor/availabilityManagement/CreateSlotForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -38,12 +37,10 @@ export const CreateSlotForm = ({ onSuccess }: CreateSlotFormProps) => {
     setSuccess('');
 
     try {
-      // Format date and times
       const dateObj = new Date(formData.date);
       const startTime = new Date(`${formData.date}T${formData.startTime}`);
       const endTime = new Date(`${formData.date}T${formData.endTime}`);
 
-      // Validation
       if (endTime <= startTime) {
         throw new Error('End time must be after start time');
       }
@@ -99,7 +96,6 @@ export const CreateSlotForm = ({ onSuccess }: CreateSlotFormProps) => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Date */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Date <span className="text-red-500">*</span>
@@ -115,7 +111,6 @@ export const CreateSlotForm = ({ onSuccess }: CreateSlotFormProps) => {
           />
         </div>
 
-        {/* Start Time */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Start Time <span className="text-red-500">*</span>
@@ -130,7 +125,6 @@ export const CreateSlotForm = ({ onSuccess }: CreateSlotFormProps) => {
           />
         </div>
 
-        {/* End Time */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             End Time <span className="text-red-500">*</span>
@@ -146,7 +140,6 @@ export const CreateSlotForm = ({ onSuccess }: CreateSlotFormProps) => {
         </div>
       </div>
 
-      {/* Recurring Options */}
       <div className="space-y-4">
         <div className="flex items-center">
           <input
@@ -211,12 +204,11 @@ export const CreateSlotForm = ({ onSuccess }: CreateSlotFormProps) => {
         )}
       </div>
 
-      {/* Submit Button */}
       <div className="pt-4">
         <button
           type="submit"
           disabled={loading}
-          className="w-full md:w-auto px-6 py-3 bg-blue-600 text-black font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50  transition-colors hover:cursor-pointer"
+          className="w-full md:w-auto px-6 py-3 bg-blue-600 text-black font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 transition-colors hover:cursor-pointer"
         >
           {loading ? 'Creating...' : 'Add Time Slot'}
         </button>

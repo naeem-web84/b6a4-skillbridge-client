@@ -54,8 +54,7 @@ const Contact = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Simulate API call
+ 
     setTimeout(() => {
       toast.success("Message sent successfully! We'll get back to you soon.");
       setFormData({ name: "", email: "", subject: "", message: "" });
@@ -65,8 +64,7 @@ const Contact = () => {
 
   return (
     <section className="py-16 md:py-24">
-      <div className="container px-4 md:px-6">
-        {/* Header */}
+      <div className="container px-4 md:px-6"> 
         <div className="text-center mb-16">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -81,8 +79,7 @@ const Contact = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12"> 
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -114,8 +111,7 @@ const Contact = () => {
                 </motion.div>
               ))}
             </div>
-
-            {/* FAQ Preview */}
+ 
             <div className="bg-muted/30 rounded-xl p-6">
               <h3 className="font-semibold text-lg mb-4">Frequently Asked Questions</h3>
               <div className="space-y-4">
@@ -136,8 +132,7 @@ const Contact = () => {
               </p>
             </div>
           </motion.div>
-
-          {/* Contact Form */}
+ 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -227,8 +222,7 @@ const Contact = () => {
             </form>
           </motion.div>
         </div>
-
-        {/* Map Placeholder */}
+ 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

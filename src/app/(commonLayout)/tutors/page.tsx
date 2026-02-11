@@ -1,9 +1,8 @@
-// app/(commonLayout)/tutors/page.tsx
 import { TutorSearchResults } from '@/components/homePage/TutorSearchResults';
-import { homePageServerService } from '@/services/homePage.service'; 
+import { homePageService } from '@/services/homePage.service';
 
 export default async function AllTutorsPage() {
-  const result = await homePageServerService.browseTutors({
+  const result = await homePageService.browseTutors({
     page: 1,
     limit: 12,
     sortBy: 'rating',

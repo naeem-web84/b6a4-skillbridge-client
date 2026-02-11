@@ -1,4 +1,4 @@
-// components/tutor-reviews/TutorReviews.tsx
+ 
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -141,8 +141,7 @@ const TutorReviews = () => {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-8"> 
       <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
@@ -180,8 +179,7 @@ const TutorReviews = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Left Column - Filters and Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8"> 
         <div className="lg:col-span-1 space-y-6">
           <ReviewFilters 
             filters={filters}
@@ -192,8 +190,7 @@ const TutorReviews = () => {
             <ReviewStats statistics={statistics} />
           )}
         </div>
-
-        {/* Right Column - Reviews List */}
+ 
         <div className="lg:col-span-3">
           {!hasReviews ? (
             <ReviewEmptyState />
@@ -204,8 +201,7 @@ const TutorReviews = () => {
                 filters={filters}
                 onFilterChange={handleFilterChange}
               />
-              
-              {/* Pagination */}
+               
               {pagination && pagination.totalPages > 1 && (
                 <div className="mt-8 flex items-center justify-between border-t border-gray-200 pt-6">
                   <div className="text-sm text-gray-700">

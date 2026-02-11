@@ -39,7 +39,6 @@ export default async function TutorStats() {
 
   const stats = result.data;
 
-  // Format currency
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -49,7 +48,6 @@ export default async function TutorStats() {
     }).format(amount);
   };
 
-  // Format compact currency for large amounts
   const formatCompactCurrency = (amount: number) => {
     if (amount >= 1000000) {
       return `$${(amount / 1000000).toFixed(1)}M`;
@@ -60,12 +58,10 @@ export default async function TutorStats() {
     return formatCurrency(amount);
   };
 
-  // Format rating
   const formatRating = (rating: number) => {
     return rating.toFixed(1);
   };
 
-  // Calculate growth indicators (mock data - you can replace with real calculations)
   const getGrowthIndicator = (value: number, previousValue: number = value * 0.8) => {
     const growth = ((value - previousValue) / previousValue) * 100;
     return {
@@ -77,7 +73,6 @@ export default async function TutorStats() {
     };
   };
 
-  // Main stats cards
   const mainStats = [
     {
       title: 'Total Earnings',
@@ -121,7 +116,6 @@ export default async function TutorStats() {
     }
   ];
 
-  // Performance stats
   const performanceStats = [
     {
       title: 'Completion Rate',
@@ -158,7 +152,6 @@ export default async function TutorStats() {
     }
   ];
 
-  // Session stats
   const sessionStats = [
     {
       title: 'Completed',
@@ -198,7 +191,6 @@ export default async function TutorStats() {
     }
   ];
 
-  // Session breakdown
   const sessionBreakdown = [
     { 
       label: 'Completed', 
@@ -238,7 +230,6 @@ export default async function TutorStats() {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Header */}
         <div className="mb-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -257,7 +248,6 @@ export default async function TutorStats() {
           </div>
         </div>
 
-        {/* Main Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {mainStats.map((stat, index) => {
             const Icon = stat.icon;
@@ -289,9 +279,7 @@ export default async function TutorStats() {
           })}
         </div>
 
-        {/* Performance & Session Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-          {/* Performance Metrics */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
@@ -325,7 +313,6 @@ export default async function TutorStats() {
             </div>
           </div>
 
-          {/* Session Status */}
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <Calendar className="h-6 w-6 text-gray-700" />
@@ -363,7 +350,6 @@ export default async function TutorStats() {
           </div>
         </div>
 
-        {/* Session Breakdown */}
         <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm mb-10">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-3">
@@ -405,7 +391,6 @@ export default async function TutorStats() {
           </div>
         </div>
 
-        {/* Additional Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
@@ -448,7 +433,6 @@ export default async function TutorStats() {
           </div>
         </div>
 
-        {/* Weekly Earnings (if data exists) */}
         {stats.weeklyEarnings && stats.weeklyEarnings.length > 0 && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
@@ -476,7 +460,6 @@ export default async function TutorStats() {
           </div>
         )}
 
-        {/* Footer Note */}
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="text-center text-sm text-gray-500">
             Last updated: {new Date().toLocaleDateString('en-US', { 

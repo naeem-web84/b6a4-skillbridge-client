@@ -41,8 +41,7 @@ const About = () => {
 
   return (
     <section className="py-16 md:py-24">
-      <div className="container px-4 md:px-6">
-        {/* Hero Section */}
+      <div className="container px-4 md:px-6"> 
         <div className="text-center mb-16">
           <Badge className="mb-4 text-sm px-4 py-1" variant="secondary">
             About SkillBridge

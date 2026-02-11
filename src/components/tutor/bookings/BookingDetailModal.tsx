@@ -1,4 +1,3 @@
-// components/tutor/bookings/BookingDetailModal.tsx - COMPACT DESIGN
 import { useState } from 'react';
 import { BookingWithUser, BookingStatus } from '@/services/tutorBooking.service';
 import { Calendar, Clock, DollarSign, User, Mail, GraduationCap, BookOpen, CreditCard, Link, FileText, Copy, Check, Edit, X } from 'lucide-react';
@@ -19,13 +18,11 @@ export default function BookingDetailModal({
   onStatusUpdate,
   onMeetingLinkUpdate,
   onRefresh
-}: BookingDetailModalProps) {
-  // Early return if modal is not open OR booking is null/undefined
+}: BookingDetailModalProps) { 
   if (!isOpen || !booking) {
     return null;
   }
-
-  // Now we can safely use booking
+ 
   const [meetingLink, setMeetingLink] = useState(booking.meetingLink || '');
   const [isEditingMeetingLink, setIsEditingMeetingLink] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -82,8 +79,8 @@ export default function BookingDetailModal({
     try {
       await onMeetingLinkUpdate(booking.id, meetingLink);
       setIsEditingMeetingLink(false);
-    } catch (error) {
-      console.error('Failed to update meeting link:', error);
+    } catch {
+      setIsEditingMeetingLink(false);
     } finally {
       setIsUpdating(false);
     }
@@ -120,10 +117,8 @@ export default function BookingDetailModal({
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-background/80 backdrop-blur-sm">
       <div className="flex min-h-screen items-center justify-center p-4">
-        {/* Modal Container - Smaller */}
         <div className="relative w-full max-w-3xl bg-card rounded-lg shadow-lg border border-border">
           
-          {/* Header - Compact */}
           <div className="border-b border-border px-5 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -148,13 +143,10 @@ export default function BookingDetailModal({
             </div>
           </div>
 
-          {/* Main Content - Compact */}
           <div className="p-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              {/* Left Column */}
               <div className="space-y-4">
-                {/* Student Information - Compact */}
                 <div className="bg-card border border-border rounded-md p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="bg-primary/10 p-1.5 rounded-md">
@@ -201,7 +193,6 @@ export default function BookingDetailModal({
                   </div>
                 </div>
 
-                {/* Session Details - Compact */}
                 <div className="bg-card border border-border rounded-md p-4">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="bg-primary/10 p-1.5 rounded-md">
@@ -259,9 +250,7 @@ export default function BookingDetailModal({
                 </div>
               </div>
 
-              {/* Right Column */}
               <div className="space-y-4">
-                {/* Meeting Link - Compact */}
                 <div className="bg-card border border-border rounded-md p-4">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
@@ -343,7 +332,6 @@ export default function BookingDetailModal({
                   )}
                 </div>
 
-                {/* Quick Actions - Compact */}
                 <div className="bg-card border border-border rounded-md p-4">
                   <h3 className="text-sm font-semibold text-card-foreground mb-3">Quick Actions</h3>
                   <div className="space-y-2">
@@ -387,7 +375,6 @@ export default function BookingDetailModal({
                   </div>
                 </div>
 
-                {/* Notes - Compact (if exists) */}
                 {booking.notes && (
                   <div className="bg-card border border-border rounded-md p-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -402,7 +389,6 @@ export default function BookingDetailModal({
               </div>
             </div>
 
-            {/* Metadata - Compact */}
             <div className="mt-4 pt-4 border-t border-border">
               <div className="flex justify-between text-xs text-muted-foreground">
                 <div>
@@ -415,7 +401,6 @@ export default function BookingDetailModal({
             </div>
           </div>
 
-          {/* Footer - Compact */}
           <div className="border-t border-border px-5 py-3">
             <div className="flex justify-end gap-2">
               <button

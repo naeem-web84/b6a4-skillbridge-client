@@ -2,14 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
-// If you want to use Server Actions instead of API calls
-export async function createTutorProfile(formData: FormData) {
-  // You can either:
-  // 1. Call your API endpoint directly
-  // 2. Or implement server-side logic here
-  
-  // Example using fetch to your API
+ 
+export async function createTutorProfile(formData: FormData) { 
   try {
     const data = {
       headline: formData.get('headline') as string,
@@ -24,8 +18,7 @@ export async function createTutorProfile(formData: FormData) {
     const response = await fetch(`${process.env.API_URL}/tutor/create-profile`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        // You might need to pass cookies for authentication
+        'Content-Type': 'application/json', 
       },
       body: JSON.stringify(data),
     });

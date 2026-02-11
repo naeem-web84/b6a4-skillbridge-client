@@ -1,4 +1,3 @@
-// components/logout-button.tsx
 "use client";
 
 import { authClient } from "@/lib/auth-client";
@@ -6,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
-import { LogOut } from "lucide-react"; // optional icon
+import { LogOut } from "lucide-react";  
 
 export function LogoutButton() {
   const router = useRouter();
@@ -16,8 +15,7 @@ export function LogoutButton() {
     setIsLoading(true);
     const toastId = toast.loading("Logging out...");
     
-    try {
-      // Call better-auth signOut
+    try { 
       const { error } = await authClient.signOut();
       
       if (error) {
@@ -26,10 +24,9 @@ export function LogoutButton() {
       }
       
       toast.success("Logged out successfully", { id: toastId });
-      
-      // Force client-side cache clear and redirect
+       
       router.push("/login");
-      router.refresh(); // Refresh server components
+      router.refresh();  
       
     } catch (error) {
       toast.error("Something went wrong", { id: toastId });

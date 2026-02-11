@@ -1,4 +1,3 @@
-// components/tutor-category/EmptyState.tsx
 interface EmptyStateProps {
   onAddClick?: () => void;
 }

@@ -26,7 +26,7 @@ import { useState, useEffect } from "react";
 const formSchema = z.object({
   name: z.string().min(1, "This field is required"),
   password: z.string().min(8, "Minimum length is 8"),
-  email: z.email(),
+  email: z.string().email("Invalid email address"),
 });
 
 export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -35,13 +35,10 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
 
   const handleGoogleLogin = async () => {
     try {
-      console.log("Starting Google login...");
       const { data, error } = await authClient.signIn.social({
         provider: "google",
         callbackURL: "http://localhost:3000",
       });
-
-      console.log("Google login response:", { data, error });
 
       if (error) {
         toast.error(`Google login failed: ${error.message}`);
@@ -51,46 +48,32 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
       if (data) {
         toast.success("Google login successful!");
         
-        // Wait a moment then check session and redirect
         setTimeout(async () => {
           await checkSessionAndRedirect();
         }, 1000);
       }
-    } catch (err: any) {
-      console.error("Google login error:", err);
+    } catch {
       toast.error("Google login failed. Please try again.");
     }
   };
 
-  // Helper function to check session and redirect
   const checkSessionAndRedirect = async () => {
     try {
-      console.log("Checking session for redirect...");
       const { data: session, error } = await authClient.getSession();
       
-      console.log("Session check result:", { session, error });
-      
       if (error || !session?.user) {
-        console.log("No valid session, staying on page");
         return;
       }
 
-      console.log("User logged in:", session.user);
-      console.log("User role:", (session.user as any).role);
-      
-      // Redirect based on role or default
       redirectBasedOnRole(session.user);
       
-    } catch (error) {
-      console.error("Session check error:", error);
+    } catch {
+      // Ignore errors
     }
   };
 
-  // Function to redirect based on user role
   const redirectBasedOnRole = (user: any) => {
     const userRole = user.role?.toUpperCase() || "STUDENT";
-    
-    console.log("Redirecting user with role:", userRole);
     
     switch (userRole) {
       case "ADMIN":
@@ -119,89 +102,55 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
       setIsLoading(true);
       const toastId = toast.loading("Creating your account...");
       
-      console.log("=== REGISTRATION START ===");
-      console.log("Form values:", value);
-      
       try {
-        console.log("Calling authClient.signUp.email...");
-        
-        // Call the registration
         const { data, error } = await authClient.signUp.email({
           email: value.email,
           password: value.password,
           name: value.name,
         });
-
-        console.log("this is data",data);
-
-        console.log("=== REGISTRATION RESPONSE ===");
-        console.log("Full response:", JSON.stringify(data, null, 2));
-        console.log("Error:", error);
         
         if (error) {
-          console.log("Registration error:", error);
           toast.error(`Registration failed: ${error.message}`, { id: toastId });
           setIsLoading(false);
           return;
         }
 
-        console.log("Registration successful!");
-        
         if (data?.user) {
-          console.log("User created:", data.user);
-          console.log("Email verified:", data.user.emailVerified);
-          
-          // Check if email is verified
           if (!data.user.emailVerified) {
             toast.success("Account created! Please check your email to verify your account.", { 
               id: toastId,
               duration: 5000,
             });
-            
-            // Show email verification message
+             
             toast.info("You need to verify your email before accessing the dashboard.", {
               duration: 10000,
             });
-            
-            // Optional: Redirect to verification info page
-            // router.push("/verify-email-info");
-            
           } else {
-            // Email already verified (should not happen with requireEmailVerification: true)
             toast.success("Account created successfully! Redirecting to dashboard...", { 
               id: toastId 
             });
-            
-            // Wait a bit then check session
+             
             setTimeout(async () => {
               await checkSessionAndRedirect();
             }, 1500);
           }
-          
-        } else if (data?.session) {
-          // If session is returned directly (autoSignIn worked)
-          console.log("Session returned directly:", data.session);
+        } else if (data?.token) {
           toast.success("Account created and logged in! Redirecting...", { id: toastId });
-          
-          // Redirect immediately
+           
           setTimeout(() => {
-            redirectBasedOnRole(data.session.user);
+            if (data.user) {
+              redirectBasedOnRole(data.user);
+            }
           }, 1000);
-          
         } else {
-          // Generic success
           toast.success("Account created successfully!", { id: toastId });
           
-          // Check session after delay
           setTimeout(async () => {
             await checkSessionAndRedirect();
           }, 2000);
         }
 
-      } catch (err: any) {
-        console.error("=== REGISTRATION EXCEPTION ===");
-        console.error("Error:", err);
-        
+      } catch {
         toast.error("Something went wrong. Please try again.", { id: toastId });
       } finally {
         setIsLoading(false);
@@ -209,17 +158,14 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     },
   });
 
-  // Optional: Add a session check on component mount
   useEffect(() => {
-    // Check if user is already logged in
     const checkExistingSession = async () => {
       try {
         const { data: session } = await authClient.getSession();
         if (session?.user) {
-          console.log("User already logged in, redirecting...");
           redirectBasedOnRole(session.user);
         }
-      } catch (error) {
+      } catch {
         // Ignore errors
       }
     };
@@ -345,17 +291,6 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
           disabled={isLoading}
         >
           Continue with Google
-        </Button>
-        
-        {/* Debug button - remove in production */}
-        <Button
-          onClick={checkSessionAndRedirect}
-          variant="ghost"
-          type="button"
-          className="w-full text-xs"
-          size="sm"
-        >
-          Debug: Check Session
         </Button>
       </CardFooter>
     </Card>

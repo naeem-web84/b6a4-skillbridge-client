@@ -1,10 +1,9 @@
-// components/tutor-reviews/ReviewSkeleton.tsx
+ 
 'use client';
 
 const ReviewSkeleton = () => {
   return (
-    <div className="space-y-8">
-      {/* Header Skeleton */}
+    <div className="space-y-8"> 
       <div className="bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl p-8 animate-pulse">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="space-y-4">
@@ -17,8 +16,7 @@ const ReviewSkeleton = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Left Column Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8"> 
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
             <div className="h-6 w-24 bg-gray-300 rounded mb-4"></div>
@@ -57,8 +55,7 @@ const ReviewSkeleton = () => {
             </div>
           </div>
         </div>
-
-        {/* Right Column Skeleton */}
+ 
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
@@ -71,8 +68,7 @@ const ReviewSkeleton = () => {
               </div>
             </div>
           </div>
-
-          {/* Review Cards Skeleton */}
+ 
           {[...Array(3)].map((_, index) => (
             <div
               key={index}

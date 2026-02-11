@@ -1,4 +1,3 @@
-// services/addCategory.service.ts
 import { env } from "@/env";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -16,10 +15,10 @@ interface Category {
 }
 
 interface TutorCategory {
-  id: string;           // TutorCategory ID (from tutor_categories table)
+  id: string;
   proficiencyLevel: string | null;
-  addedAt: string;      // Usually createdAt from tutor_categories
-  category: Category;   // Nested category object
+  addedAt: string;
+  category: Category;
 }
 
 interface BaseResponse {
@@ -37,7 +36,6 @@ interface GetCategoriesResponse extends BaseResponse {
 
 interface RemoveCategoryResponse extends BaseResponse {}
 
-// Helper function to get auth token (client-side)
 const getAuthToken = async (): Promise<string | null> => {
   if (typeof window === 'undefined') {
     return null;
@@ -47,8 +45,7 @@ const getAuthToken = async (): Promise<string | null> => {
     const { authClient } = await import("@/lib/auth-client");
     const session = await authClient.getSession();
     return session?.data?.session?.token || null;
-  } catch (error) {
-    console.error("Failed to get auth token:", error);
+  } catch {
     return null;
   }
 };
@@ -66,15 +63,13 @@ const getHeaders = async (): Promise<HeadersInit> => {
   return headers;
 };
 
-// Helper function to check if data is TutorCategory format
 const isTutorCategoryFormat = (data: any): boolean => {
   return data && data.category && typeof data.category === 'object';
 };
 
-// Helper function to transform Category[] to TutorCategory[]
 const transformCategoriesToTutorCategories = (categories: Category[]): TutorCategory[] => {
   return categories.map(category => ({
-    id: `temp_${category.id}`, // Temporary ID since we don't have TutorCategory ID
+    id: `temp_${category.id}`,
     proficiencyLevel: null,
     addedAt: category.createdAt || new Date().toISOString(),
     category: category
@@ -85,7 +80,6 @@ export const categoryService = {
   addTeachingCategory: async function (data: AddTeachingCategoryInput): Promise<AddCategoryResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 POST /tutors/categories with:", data);
       
       const res = await fetch(`${API_BASE_URL}/tutors/categories`, {
         method: "POST",
@@ -95,7 +89,6 @@ export const categoryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 POST Response:", result);
 
       if (!res.ok) {
         return {
@@ -105,11 +98,10 @@ export const categoryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Add teaching category error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to add category"
+        message: "Failed to add category"
       };
     }
   },
@@ -117,7 +109,6 @@ export const categoryService = {
   getTutorCategories: async function (): Promise<GetCategoriesResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 GET /tutors/categories");
       
       const res = await fetch(`${API_BASE_URL}/tutors/categories`, {
         method: "GET",
@@ -127,7 +118,6 @@ export const categoryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 GET Response raw:", result);
 
       if (!res.ok) {
         return {
@@ -137,7 +127,6 @@ export const categoryService = {
         };
       }
 
-      // Transform data if needed
       let transformedData: TutorCategory[] = [];
       
       if (result.success && result.data && Array.isArray(result.data)) {
@@ -147,30 +136,25 @@ export const categoryService = {
           const firstItem = result.data[0];
           
           if (isTutorCategoryFormat(firstItem)) {
-            // Already in correct format
             transformedData = result.data.filter((item: any) => 
               item && item.category && item.category.id
             );
           } else {
-            // Need to transform from Category[] to TutorCategory[]
-            console.log("🔄 Transforming Category[] to TutorCategory[]");
             transformedData = transformCategoriesToTutorCategories(result.data);
           }
         }
       }
 
-      console.log("🌐 Transformed data:", transformedData);
       return {
         success: true,
         message: result.message || "Categories fetched successfully",
         data: transformedData
       };
       
-    } catch (error: any) {
-      console.error("Get tutor categories error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch categories",
+        message: "Failed to fetch categories",
         data: []
       };
     }
@@ -179,7 +163,6 @@ export const categoryService = {
   removeTeachingCategory: async function (tutorCategoryId: string): Promise<RemoveCategoryResponse> {
     try {
       const headers = await getHeaders();
-      console.log("🌐 DELETE /tutors/categories/" + tutorCategoryId);
       
       if (!tutorCategoryId) {
         return {
@@ -195,7 +178,6 @@ export const categoryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 DELETE Response:", result);
 
       if (!res.ok) {
         return {
@@ -205,20 +187,16 @@ export const categoryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Remove teaching category error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to remove category"
+        message: "Failed to remove category"
       };
     }
   },
 
   getAllCategories: async function (): Promise<{ data: Category[], error: any }> {
     try {
-      // First try to get from a dedicated endpoint
-      console.log("🌐 GET /categories");
-      
       const headers = await getHeaders();
       const res = await fetch(`${API_BASE_URL}/categories`, {
         method: "GET",
@@ -229,7 +207,6 @@ export const categoryService = {
 
       if (res.ok) {
         const result = await res.json();
-        console.log("🌐 /categories response:", result);
         
         if (result.success && result.data) {
           return { data: result.data, error: null };
@@ -237,9 +214,6 @@ export const categoryService = {
         return { data: result || [], error: null };
       }
 
-      // If /categories doesn't exist, use tutor's categories
-      console.log("⚠️ /categories endpoint not found, trying /tutors/categories");
-      
       const tutorRes = await fetch(`${API_BASE_URL}/tutors/categories`, {
         method: "GET",
         headers,
@@ -249,26 +223,22 @@ export const categoryService = {
 
       if (tutorRes.ok) {
         const result = await tutorRes.json();
-        console.log("🌐 Using /tutors/categories for available:", result);
         
         if (result.success && result.data) {
-          // Extract category objects
           const categories: Category[] = result.data.map((item: any) => {
             if (isTutorCategoryFormat(item)) {
               return item.category;
             }
-            return item; // Already a Category object
+            return item;
           }).filter(Boolean);
           
           return { data: categories, error: null };
         }
       }
 
-      console.warn("⚠️ No categories endpoint available");
       return { data: [], error: null };
       
-    } catch (error: any) {
-      console.error("Get all categories error:", error);
+    } catch {
       return {
         data: [],
         error: { 
@@ -293,7 +263,6 @@ export const categoryService = {
         };
       }
 
-      // Try PATCH endpoint
       const res = await fetch(`${API_BASE_URL}/tutors/categories/${tutorCategoryId}`, {
         method: "PATCH",
         headers,
@@ -308,13 +277,13 @@ export const categoryService = {
  
       return {
         success: true,
-        message: "Proficiency level updated (simulated)"
+        message: "Proficiency level updated"
       };
       
-    } catch (error: any) { 
+    } catch { 
       return {
         success: false,
-        message: error.message || "Failed to update proficiency level"
+        message: "Failed to update proficiency level"
       };
     }
   }

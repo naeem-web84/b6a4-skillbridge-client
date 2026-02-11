@@ -1,5 +1,4 @@
-import NotificationSystem from '@/components/admin/notification/NotificationSystem'
-import React from 'react'
+import NotificationSystem from '@/components/admin/notification/NotificationSystem';
 
 export default function NotificationPage() {
   return (

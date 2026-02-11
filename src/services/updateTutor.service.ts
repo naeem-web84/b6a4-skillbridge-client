@@ -1,8 +1,7 @@
 import { env } from '@/env';
-import { CreateTutorProfileInput, TutorProfileResponse } from '@/types';
-import { getUserRole } from './getUserRole.service';
+import { CreateTutorProfileInput, TutorProfileResponse } from '@/types'; 
 
-const API_BASE_URL = env.NEXT_PUBLIC_API_URL||'http://localhost:5000/api';
+const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 export const updateTutorService = { 
   updateTutorProfile: async (data: Partial<CreateTutorProfileInput>): Promise<TutorProfileResponse> => {

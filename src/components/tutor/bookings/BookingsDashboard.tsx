@@ -1,14 +1,13 @@
-// components/tutor/bookings/BookingsDashboard.tsx - CLEANED VERSION
 "use client";
 
 import { useState, useEffect } from 'react';
 import tutorBookingService, { BookingStatus, BookingWithUser, NotificationItem } from '@/services/tutorBooking.service';  
-import BookingStats from './BookingStats';
-import BookingFilters from './BookingFilter'; 
+import BookingStats from './BookingStats'; 
 import { env } from '@/env';
 import TutorNotifications from './Notifications';
 import BookingsList from './BookingList';
 import BookingDetailModal from './BookingDetailModal';
+import BookingFilters from './BookingFilter';
 
 export default function BookingsDashboard() {
   const [bookings, setBookings] = useState<BookingWithUser[]>([]);
@@ -20,12 +19,10 @@ export default function BookingsDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'failed'>('connecting');
   
-  // Notifications state
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotificationsPanel, setShowNotificationsPanel] = useState(false);
   
-  // Filter states
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
   const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
     start: null,
@@ -46,7 +43,6 @@ export default function BookingsDashboard() {
       setLoading(true);
       setError(null);
       
-      // 1. Try to fetch real bookings
       const bookingsResult = await tutorBookingService.getTutorBookings({
         page: 1,
         limit: 50
@@ -60,22 +56,20 @@ export default function BookingsDashboard() {
         setError(bookingsResult.message || "Failed to fetch bookings");
       }
       
-      // 2. Try to get stats
       const statsResult = await tutorBookingService.getBookingStats();
       if (statsResult.success) {
         setStats(statsResult.data);
       }
       
-      // 3. Try to get notifications
       const notificationsResult = await tutorBookingService.getTutorNotifications();
       if (notificationsResult.success && notificationsResult.data) {
         setNotifications(notificationsResult.data);
         setUnreadCount(notificationsResult.data.filter(n => !n.isRead).length);
       }
       
-    } catch (error: any) {
+    } catch {
       setConnectionStatus('failed');
-      setError(error.message || "Failed to fetch data");
+      setError("Failed to fetch data");
     } finally {
       setLoading(false);
     }
@@ -84,12 +78,10 @@ export default function BookingsDashboard() {
   const applyFilters = () => {
     let filtered = [...bookings];
 
-    // Status filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(booking => booking.status === statusFilter);
     }
 
-    // Date range filter
     if (dateRange.start) {
       filtered = filtered.filter(booking => 
         new Date(booking.bookingDate) >= dateRange.start!
@@ -101,7 +93,6 @@ export default function BookingsDashboard() {
       );
     }
 
-    // Search filter
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(booking => {
@@ -131,14 +122,13 @@ export default function BookingsDashboard() {
       });
       
       if (result.success) {
-        // Refresh data
         fetchAllData();
         setIsModalOpen(false);
       } else {
         alert(`Failed to update status: ${result.message}`);
       }
-    } catch (error: any) {
-      alert(`Error updating status: ${error.message}`);
+    } catch {
+      alert("Error updating status");
     }
   };
 
@@ -150,8 +140,8 @@ export default function BookingsDashboard() {
       } else {
         alert(`Failed to update meeting link: ${result.message}`);
       }
-    } catch (error: any) {
-      alert(`Error updating meeting link: ${error.message}`);
+    } catch {
+      alert("Error updating meeting link");
     }
   };
 
@@ -181,7 +171,6 @@ export default function BookingsDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Notifications and Status */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
@@ -198,7 +187,6 @@ export default function BookingsDashboard() {
         </div>
         
         <div className="flex gap-3">
-          {/* Notification Button */}
           <button
             onClick={() => setShowNotificationsPanel(!showNotificationsPanel)}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-2 relative"
@@ -226,7 +214,6 @@ export default function BookingsDashboard() {
         </div>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start gap-3">
@@ -255,7 +242,6 @@ export default function BookingsDashboard() {
         </div>
       )}
 
-      {/* Notifications Panel */}
       {showNotificationsPanel && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div className="absolute inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
@@ -304,7 +290,6 @@ export default function BookingsDashboard() {
         </div>
       )}
 
-      {/* Stats Section */}
       <div>
         {stats ? (
           <>
@@ -322,7 +307,6 @@ export default function BookingsDashboard() {
         )}
       </div>
 
-      {/* Filters */}
       <BookingFilters
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
@@ -333,7 +317,6 @@ export default function BookingsDashboard() {
         connectionStatus={connectionStatus}
       />
 
-      {/* Bookings List */}
       <div>
         {filteredBookings.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
@@ -377,7 +360,6 @@ export default function BookingsDashboard() {
         )}
       </div>
 
-      {/* Detail Modal */}
       {selectedBooking && (
         <BookingDetailModal
           booking={selectedBooking}

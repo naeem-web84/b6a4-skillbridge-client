@@ -1,5 +1,4 @@
-import CategoryManagement from '@/components/admin/category/CategoryManagement'
-import React from 'react'
+import CategoryManagement from '@/components/admin/category/CategoryManagement';
 
 export default function AdminCategoryManagemenet() {
   return (

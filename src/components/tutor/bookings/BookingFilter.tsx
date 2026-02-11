@@ -1,4 +1,3 @@
-// components/tutor/bookings/BookingFilters.tsx - UPDATED
 import { BookingStatus } from '@/services/tutorBooking.service';
 
 interface BookingFiltersProps {
@@ -26,7 +25,7 @@ export default function BookingFilters({
       label: 'All Status', 
       color: 'bg-gray-100',
       icon: '📋',
-      count: 0 // Will be populated
+      count: 0
     },
     { 
       value: BookingStatus.PENDING, 
@@ -96,7 +95,6 @@ export default function BookingFilters({
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 p-5">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
-        {/* Header with Connection Status */}
         <div className="flex items-center justify-between md:hidden mb-2">
           <h3 className="text-sm font-semibold text-gray-700">Filters</h3>
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -112,7 +110,6 @@ export default function BookingFilters({
           </span>
         </div>
 
-        {/* Search Section */}
         <div className="flex-1">
           <div className="relative">
             <input
@@ -143,7 +140,6 @@ export default function BookingFilters({
           </div>
         </div>
 
-        {/* Status Filter Buttons */}
         <div className="flex-1">
           <div className="flex flex-wrap gap-2">
             {statusOptions.map((option) => (
@@ -174,7 +170,6 @@ export default function BookingFilters({
           </div>
         </div>
 
-        {/* Date Filters & Clear Button */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex gap-2">
             <div className="relative">
@@ -230,7 +225,6 @@ export default function BookingFilters({
               </button>
             )}
             
-            {/* Connection Status Badge (Desktop) */}
             <div className="hidden md:flex">
               <div className={`px-3 py-2 rounded-lg text-sm font-medium whitespace-nowrap flex items-center gap-1.5 ${
                 connectionStatus === 'connected' 
@@ -253,7 +247,6 @@ export default function BookingFilters({
         </div>
       </div>
 
-      {/* Active Filters Summary (Mobile) */}
       {isFilterActive() && (
         <div className="mt-4 pt-4 border-t border-gray-100">
           <div className="flex items-center justify-between">

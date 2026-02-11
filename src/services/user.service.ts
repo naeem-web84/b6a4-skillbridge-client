@@ -19,12 +19,13 @@ export const userService = {
             const session = await res.json();
 
             if(session === null){
-                return {data: null, error: {message: "Session is missing", status: 401} };
+                return {data: null, error: {message: "Session is missing", status: 401}};
             }
             return {data: session, error: null};
         }
         catch (error) { 
-            return {data: null,
+            return {
+                data: null,
                 error: {message: "Something went wrong", status: 500, error: error}
             };
         }

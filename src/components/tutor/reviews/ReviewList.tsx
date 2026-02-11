@@ -1,4 +1,4 @@
-// components/tutor-reviews/ReviewList.tsx
+ 
 'use client';
 
 import { Review, ReviewFiltersType } from './TutorReviews';
@@ -21,8 +21,7 @@ const ReviewList = ({ reviews, filters, onFilterChange }: ReviewListProps) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6"> 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Student Feedback</h2>
@@ -41,25 +40,22 @@ const ReviewList = ({ reviews, filters, onFilterChange }: ReviewListProps) => {
           </div>
         </div>
       </div>
-
-      {/* Reviews Grid */}
+ 
       <div className="space-y-6">
         {reviews.map((review) => (
           <div
             key={review.id}
             className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow"
-          >
-            {/* Review Header */}
+          > 
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between">
               <div className="flex items-start space-x-4">
-                {/* Student Avatar */}
+                
                 <div className="flex-shrink-0">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 flex items-center justify-center text-white font-semibold text-lg">
                     {review.student?.name?.[0]?.toUpperCase() || 'S'}
                   </div>
                 </div>
-                
-                {/* Student Info */}
+                 
                 <div>
                   <h3 className="font-semibold text-gray-900">
                     {review.student?.name || 'Anonymous Student'}
@@ -97,8 +93,7 @@ const ReviewList = ({ reviews, filters, onFilterChange }: ReviewListProps) => {
                   </div>
                 </div>
               </div>
-              
-              {/* Verified Badge */}
+               
               {review.isVerified && (
                 <div className="mt-4 sm:mt-0">
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -110,15 +105,13 @@ const ReviewList = ({ reviews, filters, onFilterChange }: ReviewListProps) => {
                 </div>
               )}
             </div>
-            
-            {/* Review Content */}
+             
             {review.comment && (
               <div className="mt-4">
                 <p className="text-gray-700 leading-relaxed">{review.comment}</p>
               </div>
             )}
-            
-            {/* Booking Info */}
+             
             {review.booking && (
               <div className="mt-6 pt-6 border-t border-gray-100">
                 <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
@@ -149,8 +142,7 @@ const ReviewList = ({ reviews, filters, onFilterChange }: ReviewListProps) => {
                 </div>
               </div>
             )}
-            
-            {/* Student Subjects */}
+             
             {review.student?.subjects && review.student.subjects.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {review.student.subjects.slice(0, 3).map((subject) => (

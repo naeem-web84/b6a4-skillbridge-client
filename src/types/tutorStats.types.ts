@@ -1,8 +1,7 @@
-// types/tutorStats.types.ts
+import { BookingStatus, UpdateBookingStatusInput } from "@/services/tutorBooking.service";
+ 
 
-import { BookingStatus } from '@prisma/client';
-
-// ==================== BASE RESPONSE TYPES ====================
+ 
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -19,8 +18,7 @@ export interface PaginationMeta {
   hasNextPage?: boolean;
   hasPrevPage?: boolean;
 }
-
-// ==================== DASHBOARD STATS TYPES ====================
+ 
 
 export interface DashboardStats {
   totalEarnings: number;
@@ -55,9 +53,7 @@ export interface DashboardStats {
   hourlyRate: number;
   experienceYears: number;
 }
-
-// ==================== UPCOMING SESSIONS TYPES ====================
-
+ 
 export interface UpcomingSession {
   id: string;
   bookingDate: Date;
@@ -65,7 +61,7 @@ export interface UpcomingSession {
   endTime: Date;
   duration: number;
   amount: number;
-  status: BookingStatus;
+  status: UpdateBookingStatusInput;
   notes: string | null;
   meetingLink: string | null;
   

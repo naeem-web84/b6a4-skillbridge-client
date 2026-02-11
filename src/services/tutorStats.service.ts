@@ -1,4 +1,3 @@
- 
 import { cookies } from "next/headers";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -38,7 +37,7 @@ export const tutorStatsService = {
         success: true,
         data: data.data,
       };
-    } catch (error: any) { 
+    } catch (error: any) {
       return {
         success: false,
         message: error.message || 'Network error',

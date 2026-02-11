@@ -6,8 +6,6 @@ import UserManagement from '@/components/admin/user-management/UserManagement'
 export default function AdminDashboard() {
   return (
     <div>
-      {/* <AdminTestComponent/> */}
-      {/* <UserManagement/> */}
       <AdminProfile/>
     </div>
   )

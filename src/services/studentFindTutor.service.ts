@@ -1,9 +1,7 @@
-// services/studentFindTutor.service.ts
 import { env } from "@/env";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-// ==================== TYPES ====================
 interface BaseResponse {
   success: boolean;
   message: string;
@@ -75,7 +73,6 @@ interface TutorAvailabilityResponse {
   slotsByDate: Record<string, AvailabilitySlot[]>;
 }
 
-// ✅ ADDED: StudentBooking interface
 export interface StudentBooking {
   id: string;
   bookingDate: string;
@@ -190,7 +187,6 @@ interface BrowseTutorsResponse {
   };
 }
 
-// ==================== AUTH HELPER ====================
 const getAuthToken = async (): Promise<string | null> => {
   if (typeof window === 'undefined') {
     return null;
@@ -200,8 +196,7 @@ const getAuthToken = async (): Promise<string | null> => {
     const { authClient } = await import("@/lib/auth-client");
     const session = await authClient.getSession();
     return session?.data?.session?.token || null;
-  } catch (error) {
-    console.error("Failed to get auth token:", error);
+  } catch {
     return null;
   }
 };
@@ -219,11 +214,7 @@ const getHeaders = async (): Promise<HeadersInit> => {
   return headers;
 };
 
-// ==================== TUTOR DISCOVERY SERVICE ====================
 export const tutorDiscoveryService = {
-  /**
-   * Browse and search tutors with filters and pagination
-   */
   browseTutors: async (
     filters?: {
       page?: number;
@@ -254,8 +245,6 @@ export const tutorDiscoveryService = {
       const queryString = queryParams.toString();
       const url = `${API_BASE_URL}/tutors/public${queryString ? `?${queryString}` : ''}`;
       
-      console.log("🌐 GET", url);
-      
       const res = await fetch(url, {
         method: "GET",
         headers,
@@ -264,7 +253,6 @@ export const tutorDiscoveryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Browse tutors response:", result);
 
       if (!res.ok) {
         return {
@@ -274,18 +262,14 @@ export const tutorDiscoveryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Browse tutors error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to browse tutors"
+        message: "Failed to browse tutors"
       };
     }
   },
 
-  /**
-   * Get specific tutor profile by ID
-   */
   getTutorProfile: async (tutorId: string): Promise<BaseResponse & { data?: TutorProfile }> => {
     try {
       const headers = await getHeaders();
@@ -298,7 +282,6 @@ export const tutorDiscoveryService = {
       }
       
       const url = `${API_BASE_URL}/tutors/public/${tutorId}`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -308,7 +291,6 @@ export const tutorDiscoveryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Tutor profile response:", result);
 
       if (!res.ok) {
         return {
@@ -318,18 +300,14 @@ export const tutorDiscoveryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get tutor profile error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch tutor profile"
+        message: "Failed to fetch tutor profile"
       };
     }
   },
 
-  /**
-   * Get tutor availability for specific date range
-   */
   getTutorAvailability: async (
     tutorId: string,
     filters?: {
@@ -354,8 +332,6 @@ export const tutorDiscoveryService = {
       const queryString = queryParams.toString();
       const url = `${API_BASE_URL}/tutors/public/${tutorId}/availability${queryString ? `?${queryString}` : ''}`;
       
-      console.log("🌐 GET", url);
-      
       const res = await fetch(url, {
         method: "GET",
         headers,
@@ -364,7 +340,6 @@ export const tutorDiscoveryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Tutor availability response:", result);
 
       if (!res.ok) {
         return {
@@ -374,21 +349,16 @@ export const tutorDiscoveryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get tutor availability error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch tutor availability"
+        message: "Failed to fetch tutor availability"
       };
     }
   }
 };
 
-// ==================== BOOKING SERVICE ====================
 export const bookingService = {
-  /**
-   * Create a new booking with a tutor
-   */
   createBooking: async (data: CreateBookingInput): Promise<BaseResponse & { data?: StudentBooking }> => {
     try {
       const headers = await getHeaders();
@@ -401,7 +371,6 @@ export const bookingService = {
       }
       
       const url = `${API_BASE_URL}/students/bookings`;
-      console.log("🌐 POST", url, data);
       
       const res = await fetch(url, {
         method: "POST",
@@ -411,7 +380,6 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Create booking response:", result);
 
       if (!res.ok) {
         return {
@@ -421,18 +389,14 @@ export const bookingService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Create booking error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to create booking"
+        message: "Failed to create booking"
       };
     }
   },
 
-  /**
-   * Get bookings with optional filters and pagination
-   */
   getBookings: async (filters?: BookingFilters): Promise<PaginatedResponse<StudentBooking>> => {
     try {
       const headers = await getHeaders();
@@ -445,8 +409,6 @@ export const bookingService = {
       const queryString = queryParams.toString();
       const url = `${API_BASE_URL}/students/bookings${queryString ? `?${queryString}` : ''}`;
       
-      console.log("🌐 GET", url);
-      
       const res = await fetch(url, {
         method: "GET",
         headers,
@@ -455,7 +417,6 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get bookings response:", result);
 
       if (!res.ok) {
         return {
@@ -471,19 +432,15 @@ export const bookingService = {
         data: result.data?.bookings || result.data || [],
         pagination: result.data?.pagination || result.pagination
       };
-    } catch (error: any) {
-      console.error("Get bookings error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch bookings",
+        message: "Failed to fetch bookings",
         data: []
       };
     }
   },
 
-  /**
-   * ✅ NEW: Get specific booking by ID (Student এর জন্য)
-   */
   getStudentBookingById: async (bookingId: string): Promise<BaseResponse & { data?: StudentBooking }> => {
     try {
       const headers = await getHeaders();
@@ -495,9 +452,7 @@ export const bookingService = {
         };
       }
       
-      // ✅ UPDATED: Student এর জন্য আলাদা endpoint
       const url = `${API_BASE_URL}/student/bookings/${bookingId}`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -507,7 +462,6 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get student booking by ID response:", result);
 
       if (!res.ok) {
         return {
@@ -517,24 +471,19 @@ export const bookingService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get booking by ID error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch booking details"
+        message: "Failed to fetch booking details"
       };
     }
   },
 
-  /**
-   * ✅ NEW: Get upcoming bookings for student
-   */
   getUpcomingBookings: async (): Promise<BaseResponse & { data?: StudentBooking[] }> => {
     try {
       const headers = await getHeaders();
       
       const url = `${API_BASE_URL}/students/bookings/upcoming`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -544,7 +493,6 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get upcoming bookings response:", result);
 
       if (!res.ok) {
         return {
@@ -555,19 +503,15 @@ export const bookingService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get upcoming bookings error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch upcoming bookings",
+        message: "Failed to fetch upcoming bookings",
         data: []
       };
     }
   },
 
-  /**
-   * ✅ NEW: Get booking statistics for student
-   */
   getBookingStatistics: async (): Promise<BaseResponse & { 
     data?: {
       totalBookings: number;
@@ -582,7 +526,6 @@ export const bookingService = {
       const headers = await getHeaders();
       
       const url = `${API_BASE_URL}/students/bookings/statistics`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -592,7 +535,6 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get booking statistics response:", result);
 
       if (!res.ok) {
         return {
@@ -610,11 +552,10 @@ export const bookingService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get booking statistics error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch booking statistics",
+        message: "Failed to fetch booking statistics",
         data: {
           totalBookings: 0,
           pendingBookings: 0,
@@ -627,9 +568,6 @@ export const bookingService = {
     }
   },
 
-  /**
-   * Cancel a booking
-   */
   cancelBooking: async (bookingId: string): Promise<BaseResponse & { data?: StudentBooking }> => {
     try {
       const headers = await getHeaders();
@@ -642,7 +580,6 @@ export const bookingService = {
       }
       
       const url = `${API_BASE_URL}/students/bookings/${bookingId}`;
-      console.log("🌐 DELETE", url);
       
       const res = await fetch(url, {
         method: "DELETE",
@@ -651,7 +588,6 @@ export const bookingService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Cancel booking response:", result);
 
       if (!res.ok) {
         return {
@@ -661,21 +597,16 @@ export const bookingService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Cancel booking error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to cancel booking"
+        message: "Failed to cancel booking"
       };
     }
   }
 };
 
-// ==================== REVIEW SERVICE ====================
 export const reviewService = {
-  /**
-   * Create a review for a completed booking
-   */
   createReview: async (
     bookingId: string,
     data: ReviewInput
@@ -697,9 +628,7 @@ export const reviewService = {
         };
       }
       
-      // ✅ UPDATED: Changed from /students/reviews to /student/reviews
       const url = `${API_BASE_URL}/student/reviews`;
-      console.log("🌐 POST", url, { bookingId, ...data });
       
       const res = await fetch(url, {
         method: "POST",
@@ -709,7 +638,6 @@ export const reviewService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Create review response:", result);
 
       if (!res.ok) {
         return {
@@ -719,18 +647,14 @@ export const reviewService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Create review error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to create review"
+        message: "Failed to create review"
       };
     }
   },
 
-  /**
-   * Update a review
-   */
   updateReview: async (
     reviewId: string,
     data: ReviewInput
@@ -752,9 +676,7 @@ export const reviewService = {
         };
       }
       
-      // ✅ UPDATED: Changed from /students/reviews/:id to /student/reviews/:id
       const url = `${API_BASE_URL}/student/reviews/${reviewId}`;
-      console.log("🌐 PUT", url, data);
       
       const res = await fetch(url, {
         method: "PUT",
@@ -764,7 +686,6 @@ export const reviewService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Update review response:", result);
 
       if (!res.ok) {
         return {
@@ -774,18 +695,14 @@ export const reviewService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Update review error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to update review"
+        message: "Failed to update review"
       };
     }
   },
 
-  /**
-   * Delete a review
-   */
   deleteReview: async (reviewId: string): Promise<BaseResponse> => {
     try {
       const headers = await getHeaders();
@@ -797,9 +714,7 @@ export const reviewService = {
         };
       }
       
-      // ✅ UPDATED: Changed from /students/reviews/:id to /student/reviews/:id
       const url = `${API_BASE_URL}/student/reviews/${reviewId}`;
-      console.log("🌐 DELETE", url);
       
       const res = await fetch(url, {
         method: "DELETE",
@@ -808,7 +723,6 @@ export const reviewService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Delete review response:", result);
 
       if (!res.ok) {
         return {
@@ -818,18 +732,14 @@ export const reviewService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Delete review error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to delete review"
+        message: "Failed to delete review"
       };
     }
   },
 
-  /**
-   * Get all reviews by the current student
-   */
   getStudentReviews: async (filters?: {
     page?: number;
     limit?: number;
@@ -853,7 +763,6 @@ export const reviewService = {
     try {
       const headers = await getHeaders();
       
-      // Build query string
       const queryParams = new URLSearchParams();
       if (filters?.page) queryParams.append('page', filters.page.toString());
       if (filters?.limit) queryParams.append('limit', filters.limit.toString());
@@ -862,9 +771,7 @@ export const reviewService = {
       
       const queryString = queryParams.toString();
       
-      // ✅ UPDATED: Changed from /students/reviews to /student/reviews
       const url = `${API_BASE_URL}/student/reviews${queryString ? `?${queryString}` : ''}`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -874,7 +781,6 @@ export const reviewService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get student reviews response:", result);
 
       if (!res.ok) {
         return {
@@ -888,11 +794,10 @@ export const reviewService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get student reviews error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch reviews",
+        message: "Failed to fetch reviews",
         data: {
           reviews: [],
           statistics: { totalReviews: 0, averageRating: 0 }
@@ -901,9 +806,6 @@ export const reviewService = {
     }
   },
 
-  /**
-   * Get single review by ID
-   */
   getReviewById: async (reviewId: string): Promise<BaseResponse & { data?: Review }> => {
     try {
       const headers = await getHeaders();
@@ -915,9 +817,7 @@ export const reviewService = {
         };
       }
       
-      // ✅ UPDATED: Changed from /students/reviews/:id to /student/reviews/:id
       const url = `${API_BASE_URL}/student/reviews/${reviewId}`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -927,7 +827,6 @@ export const reviewService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get review by ID response:", result);
 
       if (!res.ok) {
         return {
@@ -937,28 +836,21 @@ export const reviewService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get review by ID error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch review"
+        message: "Failed to fetch review"
       };
     }
   }
 };
 
-// ==================== CATEGORY SERVICE ====================
 export const categoryService = {
-  /**
-   * Get all available tutoring categories
-   */
   getAllCategories: async (): Promise<BaseResponse & { data?: Category[] }> => {
     try {
       const headers = await getHeaders();
       
-      // ✅ UPDATED: Changed from /categories to /student/categories
       const url = `${API_BASE_URL}/student/categories`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -968,7 +860,6 @@ export const categoryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get categories response:", result);
 
       if (!res.ok) {
         return {
@@ -983,19 +874,15 @@ export const categoryService = {
         message: "Categories fetched successfully",
         data: result.data || []
       };
-    } catch (error: any) {
-      console.error("Get categories error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch categories",
+        message: "Failed to fetch categories",
         data: []
       };
     }
   },
 
-  /**
-   * Get category by ID
-   */
   getCategoryById: async (categoryId: string): Promise<BaseResponse & { data?: Category & { tutorCount: number; bookingCount: number } }> => {
     try {
       const headers = await getHeaders();
@@ -1007,9 +894,7 @@ export const categoryService = {
         };
       }
       
-      // ✅ UPDATED: Changed from /categories/:id to /student/categories/:id
       const url = `${API_BASE_URL}/student/categories/${categoryId}`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -1019,7 +904,6 @@ export const categoryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get category by ID response:", result);
 
       if (!res.ok) {
         return {
@@ -1029,18 +913,14 @@ export const categoryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get category by ID error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch category"
+        message: "Failed to fetch category"
       };
     }
   },
 
-  /**
-   * Get tutors by category
-   */
   getTutorsByCategory: async (
     categoryId: string,
     filters?: {
@@ -1078,7 +958,6 @@ export const categoryService = {
         };
       }
       
-      // Build query string
       const queryParams = new URLSearchParams();
       if (filters?.page) queryParams.append('page', filters.page.toString());
       if (filters?.limit) queryParams.append('limit', filters.limit.toString());
@@ -1089,9 +968,7 @@ export const categoryService = {
       
       const queryString = queryParams.toString();
       
-      // ✅ UPDATED: Changed from /categories/:id/tutors to /student/categories/:id/tutors
       const url = `${API_BASE_URL}/student/categories/${categoryId}/tutors${queryString ? `?${queryString}` : ''}`;
-      console.log("🌐 GET", url);
       
       const res = await fetch(url, {
         method: "GET",
@@ -1101,7 +978,6 @@ export const categoryService = {
       });
 
       const result = await res.json();
-      console.log("🌐 Get tutors by category response:", result);
 
       if (!res.ok) {
         return {
@@ -1120,11 +996,10 @@ export const categoryService = {
       }
 
       return result;
-    } catch (error: any) {
-      console.error("Get tutors by category error:", error);
+    } catch {
       return {
         success: false,
-        message: error.message || "Failed to fetch tutors by category",
+        message: "Failed to fetch tutors by category",
         data: {
           category: {} as Category,
           tutors: [],
@@ -1139,7 +1014,6 @@ export const categoryService = {
   }
 };
 
-// ==================== MAIN EXPORT ====================
 export const studentFindTutorService = {
   tutor: tutorDiscoveryService,
   booking: bookingService,

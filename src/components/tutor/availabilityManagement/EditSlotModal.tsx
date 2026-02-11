@@ -1,4 +1,3 @@
-// components/tutor/availabilityManagement/EditSlotModal.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -20,7 +19,6 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
     endTime: '',
   });
 
-  // Initialize form with slot data
   useEffect(() => {
     if (slot) {
       const date = new Date(slot.date);
@@ -79,10 +77,8 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
         <div className="fixed inset-0 transition-opacity bg-black bg-opacity-30" onClick={onClose}></div>
 
-        {/* Modal */}
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="sm:flex sm:items-start">
@@ -97,7 +93,6 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
 
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-4">
-                    {/* Date */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Date
@@ -112,7 +107,6 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
                       />
                     </div>
 
-                    {/* Start Time */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Start Time
@@ -127,7 +121,6 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
                       />
                     </div>
 
-                    {/* End Time */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         End Time
@@ -142,7 +135,6 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
                       />
                     </div>
 
-                    {/* Original Info */}
                     <div className="p-3 bg-gray-50 rounded-lg">
                       <p className="text-sm text-gray-600">
                         <span className="font-medium">Original:</span>{' '}
@@ -158,7 +150,6 @@ export const EditSlotModal = ({ isOpen, onClose, slot, onSuccess }: EditSlotModa
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="mt-6 flex gap-3">
                     <button
                       type="button"

@@ -6,7 +6,6 @@ import { CreateTutorProfileInput, Category } from '@/types';
 import { updateTutorService } from '@/services/updateTutor.service';
 import { tutorService } from '@/services/tutor.service';
 
- 
 const Toast = ({ message, type = 'success', onClose }: { 
   message: string; 
   type?: 'success' | 'error'; 
@@ -57,22 +56,22 @@ export default function UpdateTutorForm() {
         education: '',
         certifications: '',
     });
- 
+
     useEffect(() => {
         const loadData = async () => {
             try {
                 setFetching(true);
- 
+
                 const categoriesResult = await tutorService.getCategories();
                 if (categoriesResult.success) {
                     setCategories(categoriesResult.categories || []);
                 }
- 
+
                 const profileResult = await tutorService.getTutorProfile();
 
                 if (profileResult.success) {
-                     const profileData = (profileResult as any).data || profileResult;
- 
+                    const profileData = (profileResult as any).data || profileResult;
+
                     setFormData({
                         headline: profileData.headline || '',
                         bio: profileData.bio || '',
@@ -81,7 +80,7 @@ export default function UpdateTutorForm() {
                         education: profileData.education || '',
                         certifications: profileData.certifications || '',
                     });
- 
+
                     if (profileData.categories && Array.isArray(profileData.categories)) {
                         const categoryIds = profileData.categories.map((cat: any) => cat.categoryId || cat.id);
                         setSelectedCategories(categoryIds);
@@ -93,10 +92,9 @@ export default function UpdateTutorForm() {
                     });
                     setTimeout(() => router.push('/become-tutor'), 2000);
                 }
-            } catch (error: any) {
-                console.error('Failed to load data:', error);
+            } catch {
                 setToast({ 
-                    message: 'Failed to load profile data: ' + error.message, 
+                    message: 'Failed to load profile data', 
                     type: 'error' 
                 });
             } finally {
@@ -130,7 +128,7 @@ export default function UpdateTutorForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-         const isFormEmpty = !formData.headline &&
+        const isFormEmpty = !formData.headline &&
             !formData.bio &&
             !formData.hourlyRate &&
             !formData.experienceYears &&
@@ -146,7 +144,6 @@ export default function UpdateTutorForm() {
             return;
         }
 
-        // Prepare update data - only include fields that have values
         const updateData: Partial<CreateTutorProfileInput> = {};
 
         if (formData.headline) updateData.headline = formData.headline;
@@ -156,7 +153,6 @@ export default function UpdateTutorForm() {
         if (formData.education) updateData.education = formData.education;
         if (formData.certifications) updateData.certifications = formData.certifications;
 
-        // Include categories if any selected
         if (selectedCategories.length > 0) {
             updateData.categories = selectedCategories.map(categoryId => ({
                 categoryId,
@@ -175,7 +171,6 @@ export default function UpdateTutorForm() {
                     type: 'success' 
                 });
                 
-                // Redirect after showing toast
                 setTimeout(() => {
                     router.push('/dashboard');
                     router.refresh();
@@ -186,9 +181,9 @@ export default function UpdateTutorForm() {
                     type: 'error' 
                 });
             }
-        } catch (error: any) {
+        } catch {
             setToast({ 
-                message: 'Error: ' + error.message, 
+                message: 'Error: Failed to update tutor profile', 
                 type: 'error' 
             });
         } finally {
@@ -221,7 +216,6 @@ export default function UpdateTutorForm() {
             
             <div className="max-w-3xl mx-auto p-4 md:p-8">
                 <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                    {/* Header */}
                     <div className="mb-8 md:mb-10">
                         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                             Update Tutor Profile
@@ -232,7 +226,6 @@ export default function UpdateTutorForm() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-8">
-                        {/* Headline */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-800">
                                 Professional Headline
@@ -247,7 +240,6 @@ export default function UpdateTutorForm() {
                             />
                         </div>
 
-                        {/* Bio */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-800">
                                 About You
@@ -262,9 +254,7 @@ export default function UpdateTutorForm() {
                             />
                         </div>
 
-                        {/* Hourly Rate and Experience */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                            {/* Hourly Rate */}
                             <div className="space-y-2">
                                 <label className="block text-sm font-semibold text-gray-800">
                                     Hourly Rate (USD)
@@ -285,7 +275,6 @@ export default function UpdateTutorForm() {
                                 </div>
                             </div>
 
-                            {/* Years of Experience */}
                             <div className="space-y-2">
                                 <label className="block text-sm font-semibold text-gray-800">
                                     Years of Experience
@@ -301,7 +290,6 @@ export default function UpdateTutorForm() {
                             </div>
                         </div>
 
-                        {/* Education */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-800">
                                 Education
@@ -316,7 +304,6 @@ export default function UpdateTutorForm() {
                             />
                         </div>
 
-                        {/* Certifications */}
                         <div className="space-y-2">
                             <label className="block text-sm font-semibold text-gray-800">
                                 Certifications
@@ -331,7 +318,6 @@ export default function UpdateTutorForm() {
                             />
                         </div>
 
-                        {/* Categories */}
                         <div className="bg-gray-50 p-5 rounded-xl border border-gray-200">
                             <label className="block text-sm font-semibold text-gray-800 mb-4">
                                 Teaching Categories
@@ -369,13 +355,12 @@ export default function UpdateTutorForm() {
                             </div>
                         </div>
 
-                        {/* Submit and Cancel Buttons */}
                         <div className="pt-8 border-t border-gray-200">
                             <div className="flex flex-col sm:flex-row gap-4">
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="flex-1 py-4 px-6 mt-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-black font-semibold rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg "
+                                    className="flex-1 py-4 px-6 mt-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-black font-semibold rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                                 >
                                     {loading ? (
                                         <span className="flex items-center justify-center">

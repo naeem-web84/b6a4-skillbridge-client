@@ -1,4 +1,3 @@
-// components/tutors/TutorProfileModal.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -10,12 +9,13 @@ import {
   Users,
   Calendar,
   X,
-  MessageSquare,
   Shield,
   CheckCircle,
-  ChevronLeft
+  ChevronLeft,
+  LogIn
 } from 'lucide-react';
 import { homePageService } from '@/services/homePage.service';
+import { useRouter } from 'next/navigation';
 
 interface TutorCategory {
   id: string;
@@ -36,7 +36,7 @@ interface Tutor {
   totalReviews: number;
   experienceYears?: number;
   education?: string;
-  certifications?: string[] | string | null; // Updated type
+  certifications?: string[] | string | null;
   completedSessions?: number;
   categories?: TutorCategory[];
   createdAt?: string;
@@ -77,6 +77,7 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const router = useRouter();
   const [tutor, setTutor] = useState<TutorProfile | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
@@ -86,7 +87,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
     if (isOpen && tutorId) {
       fetchTutorProfile();
     } else {
-      // Reset state when modal closes
       setTutor(null);
       setActiveTab('overview');
       setImageError(false);
@@ -98,37 +98,64 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
     try {
       const result = await homePageService.getTutorProfile(tutorId);
       if (result.success && result.data) {
-        // Ensure certifications is always an array
         const processedData = {
           ...result.data,
           certifications: safeCertificationsArray(result.data.certifications)
         };
         setTutor(processedData);
       } else {
-        console.error('Failed to fetch tutor:', result.message);
+        setTutor({
+          id: tutorId,
+          userId: '',
+          name: 'Tutor Profile',
+          headline: 'Available for tutoring',
+          hourlyRate: 0,
+          rating: 0,
+          totalReviews: 0,
+          reviews: [],
+          statistics: {
+            totalStudents: 0,
+            totalSessions: 0,
+            availableSlots: 0,
+            completedSessions: 0
+          },
+          categories: []
+        } as TutorProfile);
       }
     } catch (error) {
-      console.error('Error fetching tutor:', error);
+      setTutor({
+        id: tutorId,
+        userId: '',
+        name: 'Tutor Profile',
+        headline: 'Available for tutoring',
+        hourlyRate: 0,
+        rating: 0,
+        totalReviews: 0,
+        reviews: [],
+        statistics: {
+          totalStudents: 0,
+          totalSessions: 0,
+          availableSlots: 0,
+          completedSessions: 0
+        },
+        categories: []
+      } as TutorProfile);
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper function to safely convert certifications to array
   const safeCertificationsArray = (certifications: any): string[] => {
     if (!certifications) return [];
     if (Array.isArray(certifications)) return certifications;
     if (typeof certifications === 'string') {
-      // Try to parse as JSON array string
       try {
         const parsed = JSON.parse(certifications);
         if (Array.isArray(parsed)) return parsed;
       } catch (e) {
-        // If it's a comma-separated string, split it
         if (certifications.includes(',')) {
           return certifications.split(',').map((cert: string) => cert.trim());
         }
-        // Otherwise, return as single item array
         return [certifications];
       }
     }
@@ -163,21 +190,17 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
     if (tutor.image && !imageError) {
       return tutor.image;
     }
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(tutor.name)}&backgroundColor=3b82f6&textColor=ffffff`;
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(tutor?.name || 'Tutor')}&backgroundColor=3b82f6&textColor=ffffff`;
   };
 
   const handleBookSession = () => {
-    if (tutor) {
-      window.open(`/tutors/${tutor.id}/book`, '_blank');
-    }
+    router.push('/login?redirect=/dashboard');
   };
 
-  const handleMessage = () => {
-    console.log('Message tutor:', tutorId);
-    // Implement messaging functionality
+  const handleLogin = () => {
+    router.push(`/login?redirect=/tutors/${tutorId}`);
   };
 
-  // Safe getter for certifications array
   const getCertifications = () => {
     if (!tutor) return [];
     if (!tutor.certifications) return [];
@@ -185,7 +208,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
     return [];
   };
 
-  // Safe getter for categories array
   const getCategories = () => {
     if (!tutor) return [];
     if (!tutor.categories) return [];
@@ -193,7 +215,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
     return [];
   };
 
-  // Safe getter for reviews array
   const getReviews = () => {
     if (!tutor) return [];
     if (!tutor.reviews) return [];
@@ -205,19 +226,16 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
 
   return (
     <>
-      {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] transition-opacity animate-in fade-in duration-300"
         onClick={onClose}
       />
       
-      {/* Modal */}
       <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 overflow-y-auto">
         <div 
           className="bg-background rounded-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in slide-in-from-bottom-10 duration-300"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header with close button */}
           <div className="flex items-center justify-between p-6 border-b border-border bg-card/50 backdrop-blur-sm">
             <button
               onClick={onClose}
@@ -235,7 +253,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
             </button>
           </div>
 
-          {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20">
@@ -244,12 +261,9 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
               </div>
             ) : tutor ? (
               <div className="grid lg:grid-cols-3 gap-8">
-                {/* Left Column: Main Content */}
                 <div className="lg:col-span-2 space-y-8">
-                  {/* Header */}
                   <div className="bg-card rounded-2xl p-6 border border-border">
                     <div className="flex flex-col md:flex-row md:items-start gap-6">
-                      {/* Avatar */}
                       <div className="relative">
                         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-card shadow-lg">
                           <img
@@ -269,7 +283,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                         )}
                       </div>
 
-                      {/* Info */}
                       <div className="flex-1">
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                           <div>
@@ -308,7 +321,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Categories */}
                         {getCategories().length > 0 && (
                           <div className="flex flex-wrap gap-2 mt-4">
                             {getCategories().map((category) => (
@@ -325,7 +337,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Tabs */}
                   <div className="border-b border-border">
                     <nav className="flex space-x-8">
                       {['overview', 'reviews'].map((tab) => (
@@ -347,11 +358,9 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                     </nav>
                   </div>
 
-                  {/* Tab Content */}
                   <div className="space-y-8">
                     {activeTab === 'overview' && (
                       <>
-                        {/* About */}
                         <div className="bg-card rounded-xl p-6 border border-border">
                           <h3 className="text-xl font-bold text-card-foreground mb-4">
                             About {tutor.name.split(' ')[0]}
@@ -361,7 +370,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                           </p>
                         </div>
 
-                        {/* Experience & Education */}
                         <div className="grid md:grid-cols-2 gap-6">
                           <div className="bg-card rounded-xl p-6 border border-border">
                             <h3 className="text-xl font-bold text-card-foreground mb-4 flex items-center gap-2">
@@ -403,7 +411,6 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                           </div>
                         </div>
 
-                        {/* Certifications - FIXED with safe array handling */}
                         {getCertifications().length > 0 && (
                           <div className="bg-card rounded-xl p-6 border border-border">
                             <h3 className="text-xl font-bold text-card-foreground mb-4">
@@ -509,9 +516,7 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                   </div>
                 </div>
 
-                {/* Right Column: Sidebar */}
                 <div className="space-y-6">
-                  {/* Booking Card */}
                   <div className="bg-card rounded-2xl p-6 border border-border sticky top-6">
                     <h3 className="text-xl font-bold text-card-foreground mb-6">
                       Book a Session
@@ -569,25 +574,23 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
                         <Calendar className="w-5 h-5" />
                         Book Session
                       </button>
-                      
-                      <button
-                        onClick={handleMessage}
-                        className="w-full py-3 border border-primary text-primary hover:bg-primary/10 font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-                      >
-                        <MessageSquare className="w-5 h-5" />
-                        Message Tutor
-                      </button>
                     </div>
 
                     <div className="mt-6 pt-6 border-t border-border text-center">
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground mb-2">
                         <Shield className="w-3 h-3 inline mr-1" />
                         Secure payment • 24-hour cancellation
                       </div>
+                      <button
+                        onClick={handleLogin}
+                        className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors mt-2"
+                      >
+                        <LogIn className="w-4 h-4" />
+                        Login to book this tutor
+                      </button>
                     </div>
                   </div>
 
-                  {/* Stats Card */}
                   <div className="bg-card rounded-2xl p-6 border border-border">
                     <h3 className="text-lg font-bold text-card-foreground mb-4">
                       Session Stats
@@ -622,6 +625,12 @@ export const TutorProfileModal: React.FC<TutorProfileModalProps> = ({
             ) : (
               <div className="text-center py-20">
                 <p className="text-muted-foreground">Failed to load tutor profile</p>
+                <button
+                  onClick={onClose}
+                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg"
+                >
+                  Close
+                </button>
               </div>
             )}
           </div>

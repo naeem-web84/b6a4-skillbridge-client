@@ -1,4 +1,3 @@
-// components/tutor-category/CategoryCard.tsx
 "use client";
 
 import { useState } from "react";
@@ -33,7 +32,6 @@ export function CategoryCard({
   const [isEditing, setIsEditing] = useState(false);
   const [proficiency, setProficiency] = useState(tutorCategory.proficiencyLevel || "");
 
-  // Safe access to category properties
   const category = tutorCategory.category || {
     id: "unknown",
     name: "Unknown Category",
@@ -54,7 +52,6 @@ export function CategoryCard({
     setIsEditing(false);
   };
 
-  // Format date safely
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString('en-US', {
@@ -62,14 +59,13 @@ export function CategoryCard({
         month: 'short',
         day: 'numeric'
       });
-    } catch (error) {
+    } catch {
       return "Unknown date";
     }
   };
 
   return (
     <div className="group relative bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-5 hover:shadow-md transition-all duration-200">
-      {/* Remove Button */}
       <button
         onClick={() => onRemove(tutorCategory.id)}
         disabled={removing}
@@ -88,7 +84,6 @@ export function CategoryCard({
         )}
       </button>
 
-      {/* Category Info */}
       <div className="pr-8">
         <div className="flex items-center gap-2 mb-3">
           <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
@@ -107,7 +102,6 @@ export function CategoryCard({
           </p>
         )}
 
-        {/* Proficiency Section */}
         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -169,7 +163,6 @@ export function CategoryCard({
           )}
         </div>
 
-        {/* Added Date */}
         <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
           <p className="text-xs text-gray-500 dark:text-gray-500">
             Added on {formatDate(tutorCategory.addedAt)}

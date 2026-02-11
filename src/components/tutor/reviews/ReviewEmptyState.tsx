@@ -1,4 +1,3 @@
-// components/tutor-reviews/ReviewEmptyState.tsx
 'use client';
 
 interface ReviewEmptyStateProps {

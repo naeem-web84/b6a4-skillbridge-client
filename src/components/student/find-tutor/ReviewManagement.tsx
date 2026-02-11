@@ -1,4 +1,3 @@
-// components/student-find-tutor/ReviewManagement.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,27 +9,18 @@ interface Review {
   comment?: string;
   isVerified: boolean;
   createdAt: string;
-  tutor?: {
+  tutorProfile: {
     id: string;
-    userId?: string;
     headline: string;
-    hourlyRate?: number;
-    rating?: number;
     user?: {
       name: string;
       image?: string;
       email?: string;
     };
   };
-  booking?: {
+  booking: {
     id: string;
     bookingDate: string;
-    startTime?: string;
-    endTime?: string;
-    category?: {
-      id: string;
-      name: string;
-    };
   };
 }
 
@@ -53,13 +43,16 @@ export default function ReviewManagement() {
     try {
       const result = await studentFindTutorService.review.getStudentReviews();
       
-      if (result.success && result.data?.reviews) {
-        setReviews(result.data.reviews as Review[]);
+      if (result.success && result.data) {
+        // Access reviews from result.data.reviews
+        setReviews(Array.isArray(result.data.reviews) ? result.data.reviews : []);
       } else {
         setError(result.message || "Failed to load reviews");
+        setReviews([]);
       }
     } catch (err: any) {
       setError(err.message || "Error fetching reviews");
+      setReviews([]);
     } finally {
       setLoading(false);
     }
@@ -145,7 +138,25 @@ export default function ReviewManagement() {
     });
   };
 
-  if (loading) return <div className="text-center py-8 text-muted-foreground">Loading reviews...</div>;
+  const formatDate = (dateString: string) => {
+    try {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch {
+      return 'Invalid date';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -267,19 +278,19 @@ export default function ReviewManagement() {
       )}
 
       {reviews.length === 0 ? (
-        <div className="text-center py-12">
+        <div className="text-center py-12 bg-card rounded-lg border">
           <div className="text-muted-foreground text-6xl mb-4">⭐</div>
           <h3 className="text-xl font-semibold text-muted-foreground">No reviews yet</h3>
           <p className="text-muted-foreground mt-2">Share your experience with tutors you've worked with.</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {reviews.map((review) => (
             <div key={review.id} className="border rounded-lg p-5 hover:shadow-md transition-shadow bg-card">
-              <div className="flex justify-between items-start">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-4">
                 <div className="flex-1">
-                  <div className="flex items-center space-x-3">
-                    <div className="text-yellow-500 dark:text-yellow-400 text-xl">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="text-yellow-500 dark:text-yellow-400">
                       {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
                     </div>
                     <span className="text-sm text-muted-foreground">
@@ -292,37 +303,32 @@ export default function ReviewManagement() {
                     )}
                   </div>
                   
-                  <h3 className="font-bold mt-2 text-foreground">{review.tutor?.headline || 'Tutor'}</h3>
+                  <h3 className="font-bold text-foreground">{review.tutorProfile.headline}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Tutor: {review.tutorProfile.user?.name || 'Tutor'}
+                  </p>
                   
                   {review.comment && (
-                    <p className="text-foreground mt-2">{review.comment}</p>
+                    <p className="text-foreground mt-3 bg-muted p-3 rounded">{review.comment}</p>
                   )}
                   
                   <div className="mt-4 text-sm text-muted-foreground">
-                    <span>
-                      Reviewed on {new Date(review.createdAt).toLocaleDateString()}
-                    </span>
-                    {review.booking && (
-                      <>
-                        <span className="mx-2">•</span>
-                        <span>
-                          Booking: {new Date(review.booking.bookingDate).toLocaleDateString()}
-                        </span>
-                      </>
-                    )}
+                    <span>Reviewed on {formatDate(review.createdAt)}</span>
+                    <span className="mx-2">•</span>
+                    <span>Booking: {formatDate(review.booking.bookingDate)}</span>
                   </div>
                 </div>
                 
-                <div className="flex space-x-2 ml-4">
+                <div className="flex gap-2">
                   <button
                     onClick={() => startEditReview(review)}
-                    className="px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-sm"
+                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm transition-colors"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteReview(review.id)}
-                    className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded hover:bg-red-200 dark:hover:bg-red-800 transition-colors text-sm"
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm transition-colors"
                   >
                     Delete
                   </button>
@@ -352,4 +358,4 @@ export default function ReviewManagement() {
       )}
     </div>
   );
-}
+};

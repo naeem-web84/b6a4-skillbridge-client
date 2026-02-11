@@ -1,4 +1,4 @@
-// components/tutor-reviews/ReviewFilters.tsx
+ 
 'use client';
 
 import { ReviewFiltersType } from './TutorReviews';
@@ -13,8 +13,7 @@ const ReviewFilters = ({ filters, onFilterChange }: ReviewFiltersProps) => {
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">Filters</h2>
       
-      <div className="space-y-6">
-        {/* Sort By */}
+      <div className="space-y-6"> 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Sort by
@@ -32,8 +31,7 @@ const ReviewFilters = ({ filters, onFilterChange }: ReviewFiltersProps) => {
             <option value="lowest">Lowest Rated</option>
           </select>
         </div>
-
-        {/* Minimum Rating */}
+ 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Minimum Rating
@@ -72,8 +70,7 @@ const ReviewFilters = ({ filters, onFilterChange }: ReviewFiltersProps) => {
             Clear rating filter
           </button>
         </div>
-
-        {/* Items Per Page */}
+ 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Reviews per page
@@ -91,8 +88,7 @@ const ReviewFilters = ({ filters, onFilterChange }: ReviewFiltersProps) => {
             <option value="50">50 reviews</option>
           </select>
         </div>
-
-        {/* Clear Filters */}
+ 
         {(filters.sortBy !== 'newest' || filters.minRating !== null || filters.limit !== 10) && (
           <button
             onClick={() => onFilterChange({ 

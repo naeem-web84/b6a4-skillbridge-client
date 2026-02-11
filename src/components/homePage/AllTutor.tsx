@@ -14,7 +14,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { homePageService } from '@/services/homePage.service';
-import { useRouter } from 'next/navigation';
+import { TutorProfileModal } from './TutorProfileModal';
 
 type Tutor = {
   id: string;
@@ -95,7 +95,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
   return (
     <div className="w-full">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Main Search */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
@@ -132,7 +131,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
           </button>
         </div>
 
-        {/* Advanced Filters Toggle */}
         <button
           type="button"
           onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
@@ -142,7 +140,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
           {showAdvancedFilters ? 'Hide Filters' : 'Show Filters'}
         </button>
 
-        {/* Advanced Filters */}
         {showAdvancedFilters && (
           <div className="bg-popover rounded-xl p-4 border border-border space-y-4 animate-in fade-in-50">
             <div className="flex items-center justify-between">
@@ -157,7 +154,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Category Filter */}
               <div>
                 <label className="block text-sm font-medium text-card-foreground mb-2">
                   Subject
@@ -176,7 +172,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
                 </select>
               </div>
 
-              {/* Rating Filter */}
               <div>
                 <label className="block text-sm font-medium text-card-foreground mb-2">
                   Minimum Rating
@@ -194,7 +189,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
                 </select>
               </div>
 
-              {/* Price Range Filter */}
               <div>
                 <label className="block text-sm font-medium text-card-foreground mb-2">
                   Price Range ($/hour)
@@ -222,7 +216,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-3 pt-2">
               <button
                 type="submit"
@@ -247,7 +240,6 @@ const TutorSearchBar: React.FC<TutorSearchBarProps> = ({
 };
 
 export const AllTutor: React.FC = () => {
-  const router = useRouter();
   const [tutors, setTutors] = useState<Tutor[]>([]);
   const [categories, setCategories] = useState<Category[]>([
     { id: 'math', name: 'Mathematics' },
@@ -271,6 +263,8 @@ export const AllTutor: React.FC = () => {
     hasNextPage: false,
     hasPrevPage: false
   });
+  const [selectedTutorId, setSelectedTutorId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     loadTutors();
@@ -287,7 +281,6 @@ export const AllTutor: React.FC = () => {
         sortOrder
       };
 
-      // Add filters if provided
       if (filters) {
         if (filters.search && filters.search.trim()) {
           searchParams.search = filters.search.trim();
@@ -312,11 +305,9 @@ export const AllTutor: React.FC = () => {
         setTutors(result.data.tutors);
         setPagination(result.data.pagination);
       } else {
-        console.error('Failed to load tutors:', result.message);
         setTutors([]);
       }
     } catch (error) {
-      console.error('Error loading tutors:', error);
       setTutors([]);
     } finally {
       setLoading(false);
@@ -359,14 +350,19 @@ export const AllTutor: React.FC = () => {
         setPagination(result.data.pagination);
       }
     } catch (error) {
-      console.error('Error loading more tutors:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleViewProfile = (tutorId: string) => {
-    router.push(`/tutors/${tutorId}`);
+    setSelectedTutorId(tutorId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedTutorId(null);
   };
 
   const getSortLabel = () => {
@@ -381,7 +377,6 @@ export const AllTutor: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-card-foreground mb-2">
             All Expert Tutors
@@ -391,7 +386,6 @@ export const AllTutor: React.FC = () => {
           </p>
         </div>
 
-        {/* Search Bar */}
         <div className="mb-8">
           <TutorSearchBar
             categories={categories}
@@ -400,7 +394,6 @@ export const AllTutor: React.FC = () => {
           />
         </div>
 
-        {/* Results Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
@@ -412,7 +405,6 @@ export const AllTutor: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* View Toggle */}
             <div className="flex items-center gap-1 border border-input rounded-lg p-1">
               <button
                 onClick={() => setViewMode('grid')}
@@ -436,7 +428,6 @@ export const AllTutor: React.FC = () => {
               </button>
             </div>
 
-            {/* Sort Dropdown */}
             <div className="relative">
               <button
                 onClick={() => handleSort(sortBy)}
@@ -453,7 +444,6 @@ export const AllTutor: React.FC = () => {
           </div>
         </div>
 
-        {/* Tutors Grid/List */}
         {loading && tutors.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
@@ -494,7 +484,6 @@ export const AllTutor: React.FC = () => {
               ))}
             </div>
 
-            {/* Load More Button */}
             {pagination.hasNextPage && (
               <div className="text-center">
                 <button
@@ -519,7 +508,6 @@ export const AllTutor: React.FC = () => {
           </>
         )}
 
-        {/* Stats Footer */}
         {tutors.length > 0 && (
           <div className="mt-12 pt-8 border-t border-border">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -551,6 +539,14 @@ export const AllTutor: React.FC = () => {
           </div>
         )}
       </div>
+
+      {selectedTutorId && (
+        <TutorProfileModal
+          tutorId={selectedTutorId}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </div>
   );
 };

@@ -1,21 +1,15 @@
-// components/student-find-tutor/CategoryManagement.tsx
 "use client";
 
 import { useState, useEffect } from "react";
 import studentFindTutorService from "@/services/studentFindTutor.service";
-
-interface Category {
-  id: string;
-  name: string;
-  description?: string;
-}
+import { Category, TutorProfile } from "@/services/studentFindTutor.service";
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [categoryTutors, setCategoryTutors] = useState<any[]>([]);
+  const [categoryTutors, setCategoryTutors] = useState<TutorProfile[]>([]);
   const [loadingTutors, setLoadingTutors] = useState(false);
 
   const fetchCategories = async () => {
@@ -26,12 +20,14 @@ export default function CategoryManagement() {
       const result = await studentFindTutorService.category.getAllCategories();
       
       if (result.success && result.data) {
-        setCategories(result.data);
+        setCategories(Array.isArray(result.data) ? result.data : []);
       } else {
         setError(result.message || "Failed to load categories");
+        setCategories([]);
       }
     } catch (err: any) {
       setError(err.message || "Error fetching categories");
+      setCategories([]);
     } finally {
       setLoading(false);
     }
@@ -43,10 +39,12 @@ export default function CategoryManagement() {
       const result = await studentFindTutorService.category.getTutorsByCategory(categoryId);
       
       if (result.success && result.data) {
-        setCategoryTutors(result.data.tutors || []);
+        setCategoryTutors(Array.isArray(result.data.tutors) ? result.data.tutors : []);
+      } else {
+        setCategoryTutors([]);
       }
-    } catch (error) {
-      setError("Error fetching category tutors");
+    } catch {
+      setCategoryTutors([]);
     } finally {
       setLoadingTutors(false);
     }
@@ -66,8 +64,21 @@ export default function CategoryManagement() {
     setCategoryTutors([]);
   };
 
-  if (loading) return <div className="text-center py-8 text-muted-foreground">Loading categories...</div>;
-  if (error) return <div className="bg-destructive/10 text-destructive p-4 rounded">Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-destructive/10 text-destructive p-4 rounded border border-destructive/20">
+        Error: {error}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -76,32 +87,35 @@ export default function CategoryManagement() {
         <p className="text-muted-foreground">Browse tutors by subject category</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            onClick={() => handleCategoryClick(category)}
-            className="border rounded-lg p-5 hover:shadow-lg transition-shadow cursor-pointer hover:border-primary/50 bg-card"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-lg text-foreground">{category.name}</h3>
-                {category.description && (
-                  <p className="text-muted-foreground text-sm mt-1">{category.description}</p>
-                )}
-              </div>
-              <div className="text-primary">
-                →
+      {categories.length === 0 ? (
+        <div className="text-center py-12 bg-card rounded-lg border">
+          <div className="text-muted-foreground text-6xl mb-4">📚</div>
+          <h3 className="text-xl font-semibold text-muted-foreground">No categories available</h3>
+          <p className="text-muted-foreground mt-2">Categories will be added by administrators.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              onClick={() => handleCategoryClick(category)}
+              className="border rounded-lg p-5 hover:shadow-lg transition-shadow cursor-pointer hover:border-primary/50 bg-card"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-lg text-foreground">{category.name}</h3>
+                  {category.description && (
+                    <p className="text-muted-foreground text-sm mt-1">{category.description}</p>
+                  )}
+                </div>
+                <div className="text-primary text-xl">
+                  →
+                </div>
               </div>
             </div>
-            <div className="mt-4">
-              <button className="w-full px-4 py-2 bg-accent text-accent-foreground rounded hover:bg-accent/80 transition-colors text-sm">
-                View Tutors
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {selectedCategory && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
@@ -133,7 +147,9 @@ export default function CategoryManagement() {
                 </h3>
 
                 {loadingTutors ? (
-                  <div className="text-center py-8 text-muted-foreground">Loading tutors...</div>
+                  <div className="flex justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  </div>
                 ) : categoryTutors.length === 0 ? (
                   <div className="text-center py-8 bg-muted rounded">
                     <div className="text-muted-foreground text-4xl mb-3">👨‍🏫</div>
@@ -145,28 +161,17 @@ export default function CategoryManagement() {
                       <div key={tutor.id} className="border rounded p-4 hover:shadow bg-card transition-shadow">
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-semibold text-foreground">{tutor.name}</h4>
-                            <p className="text-muted-foreground text-sm">{tutor.headline}</p>
+                            <h4 className="font-semibold text-foreground">{tutor.user?.name || 'Tutor'}</h4>
+                            <p className="text-muted-foreground text-sm mt-1">{tutor.headline}</p>
                           </div>
                           <div className="text-right">
                             <div className="text-lg font-bold text-green-600 dark:text-green-400">
                               ${tutor.hourlyRate}<span className="text-sm">/hr</span>
                             </div>
                             <div className="text-yellow-500 dark:text-yellow-400 text-sm">
-                              ★ {tutor.rating}/5
+                              ★ {tutor.rating.toFixed(1)}
                             </div>
                           </div>
-                        </div>
-                        <div className="mt-3">
-                          <button
-                            onClick={() => {
-                              closeCategoryDetails();
-                              alert(`Viewing tutor: ${tutor.name}`);
-                            }}
-                            className="w-full px-3 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 rounded hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors text-sm"
-                          >
-                            View Profile
-                          </button>
                         </div>
                       </div>
                     ))}
@@ -176,7 +181,7 @@ export default function CategoryManagement() {
                 {categoryTutors.length > 6 && (
                   <div className="text-center mt-4">
                     <button
-                      onClick={() => alert(`Showing all ${categoryTutors.length} tutors in ${selectedCategory.name}`)}
+                      onClick={() => alert(`Showing all ${categoryTutors.length} tutors`)}
                       className="px-4 py-2 border border-primary text-primary rounded hover:bg-primary/10 transition-colors"
                     >
                       View All {categoryTutors.length} Tutors
@@ -186,7 +191,7 @@ export default function CategoryManagement() {
               </div>
 
               <div className="p-4 bg-muted rounded-lg">
-                <h4 className="font-semibold mb-3 text-foreground">Category Information</h4>
+                <h4 className="font-semibold mb-3 text-foreground">Category Statistics</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{categoryTutors.length}</div>
@@ -225,14 +230,6 @@ export default function CategoryManagement() {
           </div>
         </div>
       )}
-
-      {categories.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-muted-foreground text-6xl mb-4">📚</div>
-          <h3 className="text-xl font-semibold text-muted-foreground">No categories available</h3>
-          <p className="text-muted-foreground mt-2">Categories will be added by administrators.</p>
-        </div>
-      )}
     </div>
   );
-}
+};

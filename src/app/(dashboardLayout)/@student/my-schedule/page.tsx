@@ -1,5 +1,4 @@
-import MySchedule from '@/components/student/mySchedule/MySchedule'
-import React from 'react'
+import MySchedule from '@/components/student/mySchedule/MySchedule';
 
 export default function MySchedulePage() {
   return (

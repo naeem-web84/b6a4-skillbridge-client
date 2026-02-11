@@ -22,7 +22,6 @@ export default function BeTutorForm() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Load categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -30,8 +29,8 @@ export default function BeTutorForm() {
         if (result.success) {
           setCategories(result.categories || []);
         }
-      } catch (error) {
-        console.error('Failed to load categories:', error);
+      } catch {
+        setCategories([]);
       }
     };
     
@@ -61,7 +60,6 @@ export default function BeTutorForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
     if (!formData.headline.trim()) {
       alert('Headline is required');
       return;
@@ -77,7 +75,6 @@ export default function BeTutorForm() {
       return;
     }
 
-    // Create categories data
     const categoriesData = selectedCategories.map(categoryId => ({
       categoryId,
       proficiencyLevel: 'Intermediate',
@@ -105,8 +102,8 @@ export default function BeTutorForm() {
       } else {
         alert('Failed: ' + (result.message || 'Failed to create tutor profile'));
       }
-    } catch (error: any) {
-      alert('Error: ' + error.message);
+    } catch {
+      alert('Error: Failed to create tutor profile');
     } finally {
       setLoading(false);
     }
@@ -306,4 +303,4 @@ export default function BeTutorForm() {
       </form>
     </div>
   );
-};
+}
