@@ -1,4 +1,4 @@
-// components/admin/bookings-review/ReviewTable.tsx
+
 "use client";
 
 import React from "react";
@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Loader2, Star, MessageSquare, Shield } from "lucide-react";
 import type { Review, ReviewFilters } from "@/services/admin.service"; 
+import ReviewRow from "./ReviewRow";
 
 interface ReviewTableProps {
   reviews: Review[];
