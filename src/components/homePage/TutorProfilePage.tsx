@@ -66,7 +66,7 @@ interface TutorProfile extends Tutor {
 }
 
 interface TutorProfilePageProps {
-  initialTutor: TutorProfile; // Required initial data from server
+  initialTutor: TutorProfile;  
 }
 
 export const TutorProfilePage: React.FC<TutorProfilePageProps> = ({ initialTutor }) => {
@@ -127,13 +127,10 @@ export const TutorProfilePage: React.FC<TutorProfilePageProps> = ({ initialTutor
       .toUpperCase()
       .substring(0, 2);
   };
-
-  // We don't show loading state because initial data is already provided
-  // if (loading) { ... }
+ 
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Back Button */}
+    <div className="container mx-auto px-4 py-8"> 
       <button
         onClick={() => router.back()}
         className="flex items-center gap-2 text-muted-foreground hover:text-card-foreground mb-8 transition-colors"
