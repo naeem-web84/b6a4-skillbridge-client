@@ -1,4 +1,4 @@
-import { tutorStatsService } from '@/services/tutorStats.service';
+import { tutorStatsService, type TutorDashboardStats } from '@/services/tutorStats.service';
 import { 
   DollarSign, 
   Users, 
@@ -20,7 +20,7 @@ import {
 export default async function TutorStats() {
   const result = await tutorStatsService.getDashboardStats();
 
-  if (!result.success) {
+  if (!result.success || !result.data) {
     return (
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-red-700 shadow-sm">
@@ -28,7 +28,7 @@ export default async function TutorStats() {
             <AlertCircle className="h-6 w-6 flex-shrink-0" />
             <div>
               <h3 className="font-semibold text-lg">Failed to load dashboard stats</h3>
-              <p className="mt-1 text-red-600">{result.message}</p>
+              <p className="mt-1 text-red-600">{result.message || 'Unable to fetch data'}</p>
               <p className="mt-2 text-sm text-red-500">Please try refreshing the page or contact support if the issue persists.</p>
             </div>
           </div>
@@ -37,7 +37,7 @@ export default async function TutorStats() {
     );
   }
 
-  const stats = result.data;
+  const stats: TutorDashboardStats = result.data;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

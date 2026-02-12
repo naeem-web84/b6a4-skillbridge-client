@@ -1,4 +1,4 @@
-// components/admin/stats/PlatformStats.tsx
+ 
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -28,13 +28,12 @@ export default function PlatformStatsComponent() {
   const [stats, setStats] = useState<PlatformStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month" | "year">("month");
-
-  // Fetch platform stats
+ 
   const fetchStats = async () => {
     setLoading(true);
     try {
       const response = await adminService.stats.getPlatformStats();
-      if (response.success) {
+      if (response.success && response.data) {
         setStats(response.data);
       } else {
         toast.error(response.message);
@@ -46,8 +45,7 @@ export default function PlatformStatsComponent() {
       setLoading(false);
     }
   };
-
-  // Initial fetch
+ 
   useEffect(() => {
     fetchStats();
   }, []);
@@ -56,8 +54,7 @@ export default function PlatformStatsComponent() {
   const handleRefresh = () => {
     fetchStats();
   };
-
-  // Format currency
+ 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -66,15 +63,13 @@ export default function PlatformStatsComponent() {
       maximumFractionDigits: 0,
     }).format(amount);
   };
-
-  // Format large numbers
+ 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toString();
   };
-
-  // Get growth percentage
+ 
   const getGrowthPercentage = (current: number, previous: number) => {
     if (previous === 0) return 100;
     return ((current - previous) / previous * 100).toFixed(1);
@@ -112,8 +107,7 @@ export default function PlatformStatsComponent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6"> 
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Platform Statistics</h1>

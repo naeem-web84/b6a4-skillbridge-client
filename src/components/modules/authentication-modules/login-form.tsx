@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import { getBaseUrl } from "@/lib/utils";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -25,7 +26,7 @@ import { useState, useEffect } from "react";
 
 const formSchema = z.object({
   password: z.string().min(8, "Minimum length is 8"),
-  email: z.email(),
+  email: z.string().email(),
 });
 
 export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -36,7 +37,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
     try {
       const { data, error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "http://localhost:3000",
+        callbackURL: getBaseUrl(),
       });
 
       if (error) {
@@ -46,12 +47,11 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       if (data) {
         toast.success("Google login successful! Redirecting...");
-        
         setTimeout(async () => {
           await checkSessionAndRedirect();
         }, 1000);
       }
-    } catch (err: any) {
+    } catch {
       toast.error("Google login failed. Please try again.");
     }
   };
@@ -66,8 +66,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
       }
 
       redirectBasedOnRole(session.user);
-      
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     }
   };
@@ -115,8 +114,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         setTimeout(async () => {
           await checkSessionAndRedirect();
         }, 1000);
-        
-      } catch (err) {
+      } catch {
         toast.error("Something went wrong, please try again.", { id: toastId });
         setIsLoading(false);
       }
@@ -130,7 +128,7 @@ export function LoginForm({ ...props }: React.ComponentProps<typeof Card>) {
         if (session?.user) {
           redirectBasedOnRole(session.user);
         }
-      } catch (error) { 
+      } catch { 
       }
     };
     

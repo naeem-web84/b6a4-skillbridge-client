@@ -16,12 +16,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client"; 
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { getBaseUrl } from "@/lib/utils";
 
 const formSchema = z.object({
   name: z.string().min(1, "This field is required"),
@@ -37,7 +38,7 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
     try {
       const { data, error } = await authClient.signIn.social({
         provider: "google",
-        callbackURL: "http://localhost:3000",
+        callbackURL: getBaseUrl(),
       });
 
       if (error) {
@@ -47,7 +48,6 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
 
       if (data) {
         toast.success("Google login successful!");
-        
         setTimeout(async () => {
           await checkSessionAndRedirect();
         }, 1000);
@@ -66,7 +66,6 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
       }
 
       redirectBasedOnRole(session.user);
-      
     } catch {
       // Ignore errors
     }
@@ -121,7 +120,6 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
               id: toastId,
               duration: 5000,
             });
-             
             toast.info("You need to verify your email before accessing the dashboard.", {
               duration: 10000,
             });
@@ -129,14 +127,12 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
             toast.success("Account created successfully! Redirecting to dashboard...", { 
               id: toastId 
             });
-             
             setTimeout(async () => {
               await checkSessionAndRedirect();
             }, 1500);
           }
         } else if (data?.token) {
           toast.success("Account created and logged in! Redirecting...", { id: toastId });
-           
           setTimeout(() => {
             if (data.user) {
               redirectBasedOnRole(data.user);
@@ -144,12 +140,10 @@ export function RegisterForm({ ...props }: React.ComponentProps<typeof Card>) {
           }, 1000);
         } else {
           toast.success("Account created successfully!", { id: toastId });
-          
           setTimeout(async () => {
             await checkSessionAndRedirect();
           }, 2000);
         }
-
       } catch {
         toast.error("Something went wrong. Please try again.", { id: toastId });
       } finally {

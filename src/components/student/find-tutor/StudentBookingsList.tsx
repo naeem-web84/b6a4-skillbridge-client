@@ -39,6 +39,7 @@ interface StudentBooking {
 export default function StudentBookingsList() {
   const [bookings, setBookings] = useState<StudentBooking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
 
   useEffect(() => {

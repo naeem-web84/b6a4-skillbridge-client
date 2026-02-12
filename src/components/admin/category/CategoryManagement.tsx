@@ -1,13 +1,13 @@
-// components/admin/category/CategoryManagement.tsx
+ 
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService, type Category, type CategoryFilters, type CreateCategoryData, type UpdateCategoryData } from "@/services/admin.service";
 import { toast } from "sonner";
-import CategoryTable from "./CategoryTable";
-import CategoryFilters from "./CategoryFilters";
+import CategoryTable from "./CategoryTable"; 
 import CreateCategoryModal from "./CreateCategoryModal";
+import CategoryFiltersComponent from "./CategoryFilters";
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -153,9 +153,8 @@ export default function CategoryManagement() {
           </Card>
         </div>
       )}
-
-      {/* Filters Component */}
-      <CategoryFilters filters={filters} setFilters={setFilters} />
+ 
+      <CategoryFiltersComponent filters={filters} setFilters={setFilters} />
 
       {/* Categories Table Component */}
       <CategoryTable

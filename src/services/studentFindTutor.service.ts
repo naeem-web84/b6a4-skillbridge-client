@@ -2,7 +2,7 @@ import { env } from "@/env";
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-interface BaseResponse {
+export interface BaseResponse {
   success: boolean;
   message: string;
 }
@@ -114,20 +114,20 @@ export interface StudentBooking {
   updatedAt?: string;
 }
 
-interface CreateBookingInput {
+export interface CreateBookingInput {
   tutorProfileId: string;
   availabilitySlotId: string;
   categoryId: string;
   notes?: string;
 }
 
-interface BookingFilters {
+export interface BookingFilters {
   status?: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED';
   page?: number;
   limit?: number;
 }
 
-interface Review {
+export interface Review {
   id: string;
   rating: number;
   comment?: string;
@@ -143,18 +143,18 @@ interface Review {
   };
 }
 
-interface ReviewInput {
+export interface ReviewInput {
   rating: number;
   comment?: string;
 }
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   description?: string;
 }
 
-interface PaginatedResponse<T> extends BaseResponse {
+export interface PaginatedResponse<T> extends BaseResponse {
   data: T[];
   pagination?: {
     total: number;

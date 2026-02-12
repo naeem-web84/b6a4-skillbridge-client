@@ -1,12 +1,11 @@
-// components/admin/notification/NotificationSystem.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminService, type CreateNotificationData, type AdminUser } from "@/services/admin.service";
 import { toast } from "sonner"; 
-import SendNotificationForm from "./SendNotificationForm";
-import NotificationHistory from "./NotificationHistory";
+import SendNotificationForm from "./SendNotificationForm"; 
 
 export default function NotificationSystem() {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -19,7 +18,7 @@ export default function NotificationSystem() {
     try {
       const response = await adminService.users.getAllUsers({
         page: 1,
-        limit: 100, // Get more users for selection
+        limit: 100,  
         sortBy: "name",
         sortOrder: "asc",
       });
